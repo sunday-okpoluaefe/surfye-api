@@ -3,7 +3,6 @@
  */
 const { Model } = require('./model');
 const auth = require('../services/auth');
-const bcrypt = require('bcrypt');
 const { AccountSchema } = require('../providers/schemas');
 
 const key = process.env.APP_ENC_KEY;
@@ -16,18 +15,6 @@ const encryptor = require('simple-encryptor')(key);
 AccountSchema.pre('save', async function (next) {
   next();
 });
-
-/**
- * Validate hash
- * @param {String} hash
- * @param {String} value
- * @returns {Boolean}
- */
-AccountSchema.methods.validateHash = async function (hash, value) {
-  //const hash = this.get(key)
-  if (!hash) return false;
-  return await bcrypt.compare(value, hash);
-};
 
 /**
  * Generate JWT.

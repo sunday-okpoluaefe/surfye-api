@@ -1,7 +1,7 @@
 {
-  "name": "ridemate_web_services",
+  "name": "surfye_web_services",
   "version": "1.0.0",
-  "description": "Instant Energy Web Services",
+  "description": "Surfye Web Services",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -18,7 +18,6 @@
     "@sentry/tracing": "^6.16.1",
     "algoliasearch": "^4.14.2",
     "axios": "^0.20.0",
-    "bcrypt": "^5.0.1",
     "config": "^3.3.2",
     "cors": "^2.8.5",
     "country-currency-map": "^2.1.7",
