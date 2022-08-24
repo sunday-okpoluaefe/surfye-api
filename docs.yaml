@@ -1,0 +1,1376 @@
+
+openapi: '3.0.0'
+info:
+  title: 'Instant Energy Api'
+  description:  'Instant Energy Api documentation for vending and solar energy'
+  version: '3.0'
+  contact:
+    email: 'instantenergyng@gmail.com'
+    name: 'Instant Energy'
+    url: 'https://instantenergy.com.ng'
+  license:
+    name: 'Apache 2.0'
+    url: 'https://apache.org/'
+
+servers:
+  - description: Instant Energy staging server
+    url: https://test.ieapis.com/v1
+
+  - description: Instant Energy live/production server
+    url: https://live.ieapis.com/v1
+
+components:
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+      Country:
+        type: object
+        properties:
+          name:
+            type: string
+            example: Nigeria
+          abbr:
+            type: string
+            example: NG
+          currency:
+            type: string
+            example: NGN
+
+      State:
+        type: object
+        properties:
+          _id:
+            type: string
+            example: 93830jf9ufu838fhf8f8f93hf
+          name:
+            type: string
+            example: Lagos
+          status:
+            type: string
+            example: active
+          country:
+            $ref: '#/components/schemas/Country'
+
+      Meter:
+        type: object
+        properties:
+          name:
+            type: string
+            example: Eni Consulting
+          address:
+            type: string
+            example: EFAB MALL GARKI
+          vendor:
+            type: string
+          type:
+            type: string
+            example: prepaid
+            description: prepaid, postpaid
+          provider:
+            $ref: '#/components/schemas/Provider'
+          email:
+            $ref: '#/components/schemas/Email'
+          phone:
+            $ref: '#/components/schemas/Phone'
+
+      Disco:
+        type: object
+        properties:
+          name:
+            type: string
+            description: Disco name
+            example: Abuja electricity distribution company
+          shortName:
+            type: string
+            description: Disco acronym
+            example: AEDC
+          website:
+            type: string
+            description: Disco public website/presence
+            example: https://aedc.com
+          logo:
+            type: string
+            description: Disco logo
+          phone:
+            $ref: '#/components/schemas/Phone'
+          email:
+            $ref: '#/components/schemas/Email'
+          country:
+            $ref: '#/components/schemas/Country'
+          status:
+            type: string
+            example: active
+
+      Provider:
+        type: object
+        properties:
+          state:
+            $ref: '#/components/schemas/State'
+          disco:
+            $ref: '#/components/schemas/Disco'
+          aggregator:
+            $ref: '#/components/schemas/Aggregator'
+          status:
+            type: string
+            example: active
+          fee:
+            type: integer
+            example: 100
+
+      CustomerMeter:
+        type: object
+        properties:
+          account:
+            $ref: '#/components/schemas/Account'
+          meter:
+            $ref: '#/components/schemas/Meter'
+          label:
+            type: string
+            example: home
+          createdAt:
+            type: string
+          updatedAt:
+            type: string
+
+      Phone:
+        type: object
+        properties:
+          number:
+            type: string
+            example: '08051524444'
+          code:
+            type: string
+            example: '+234'
+          value:
+            type: string
+            example: '+2348051524444'
+
+      Email:
+        type: object
+        properties:
+          value:
+            type: string
+            example: johndoe@instantenergy.com.ng
+          confirmed:
+            type: string
+            example: true
+
+      Aggregator:
+        type: object
+        properties:
+          name:
+            type: string
+            example: UCollect
+          shortName:
+            type: string
+            example: UCollect
+          website:
+            type: string
+            example: https://ucollect.com
+          logo:
+            type: string
+          status:
+            type: string
+            example: active
+          phone:
+            $ref: '#/components/schemas/Phone'
+          country:
+            $ref: '#/components/schemas/Country'
+
+      LoginResponse:
+        type: object
+        properties:
+          account:
+            $ref: '#/components/schemas/Account'
+          authorization:
+            type: string
+            example: 3h3hju3hhudnj3jhdn38839h.83hdj383938hrf3hfh3h339339393hnnr898nfn33983f9383hfn3.8893hfn89h
+
+
+      AccountResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+            example: true
+          data:
+            $ref: '#/components/schemas/Account'
+          message:
+            type: string
+            example: SUCCESS
+          status:
+            type: string
+            example: 200
+
+
+      MeterResponse:
+        type: object
+        properties:
+          success:
+            type: boolean
+            example: true
+          data:
+            $ref: '#/components/schemas/Meter'
+          message:
+            type: string
+            example: SUCCESS
+          status:
+            type: string
+            example: 200
+
+      400:
+        type: object
+        properties:
+          success:
+            type: boolean
+            example: false
+          data:
+            type: object
+          message:
+            type: string
+            example: BAD REQUEST
+          status:
+            type: string
+            example: 400
+
+      401:
+        type: object
+        properties:
+          success:
+            type: boolean
+            example: false
+          data:
+            type: object
+          message:
+            type: string
+            example: UNAUTHORIZED
+          status:
+            type: string
+            example: 401
+
+      404:
+        type: object
+        properties:
+          success:
+            type: boolean
+            example: false
+          data:
+            type: object
+          message:
+            type: string
+            example: NOT FOUND
+          status:
+            type: string
+            example: 404
+
+      Wallet:
+        type: object
+        properties:
+          balance:
+            type: number
+            description: Customer's wallet balance
+          pending:
+            type: number
+            description: Customer's pending wallet balance
+
+      Account:
+        type: object
+        properties:
+          _id:
+            type: string
+          firstName:
+            type: string
+            example: john
+          createdAt:
+            type: string
+          updatedAt:
+              type: string
+          lastName:
+            type: string
+            example: doe
+          profileImage:
+            type: string
+          referredBy:
+            type: string
+          referralCode:
+            type: string
+          gender:
+            type: string
+            description: male, female
+          type:
+            type: string
+            description: agent, customer
+          country:
+            $ref: '#/components/schemas/Country'
+          email:
+            $ref: '#/components/schemas/Email'
+          phone:
+            $ref: '#/components/schemas/Phone'
+
+tags:
+  - name: Account
+  - name: Meter
+  - name: State
+
+paths:
+  /account/me:
+    get:
+      tags:
+        - Account
+      description: Get registered user account details
+      security:
+        - Authorization: [ ]
+      responses:
+        200:
+          description: account login succesful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResponse'
+
+        401:
+          description: account login failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/401'
+
+
+  /meter/{meter}:
+    get:
+      tags:
+        - Meter
+      description: Get a meter detail given the id or number
+      security:
+        - Authorization: [ ]
+      parameters:
+        - in: path
+          name: meter
+          required: true
+          schema:
+            description: Meter object id or number
+            type: string
+
+      responses:
+        200:
+          description: Meter validation successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeterResponse'
+
+
+
+  /meter/validate/{meter}/{provider}:
+    get:
+      tags:
+        - Meter
+      description: Validate meter number
+      security:
+        - Authorization: [ ]
+      parameters:
+        - in: path
+          name: meter
+          required: true
+          schema:
+            type: string
+            description: Meter number
+
+        - in: path
+          name: provider
+          required: true
+          schema:
+            type: string
+            description: Provider object ID
+
+      responses:
+        200:
+          description: Meter validation successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeterResponse'
+
+        404:
+          description: Meter validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/404'
+
+
+  /account/login:
+    post:
+      tags:
+        - Account
+      description: Login registered users
+      responses:
+        200:
+          description: account login succesful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+
+        400:
+          description: account login failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400'
+
+        401:
+          description: account login failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/401'
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  $ref: '#/components/schemas/Phone'
+                pin:
+                  type: string
+                  description: registered account pin
+                  example: 123456
+
+  /account/meter:
+    post:
+      tags:
+        - Account
+      description: Add meter to customer account
+      security:
+        - Authorization: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                meter:
+                  type: string
+                  description: Meter object ID
+                label:
+                  type: string
+                  description: Meter custom name
+                recipient:
+                  $ref: '#/components/schemas/Phone'
+
+      responses:
+        200:
+          description: Meter validation successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeterResponse'
+
+  /account/reset-pin-status:
+    post:
+      tags:
+        - Account
+      description: Reset customer pin status
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  $ref: '#/components/schemas/Phone'
+
+      responses:
+        200:
+          description: Account PIN reset was successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                  message:
+                    type: string
+                    example: SUCCESS
+                  status:
+                    type: string
+                    example: 200
+
+        403:
+          description: An account exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  data:
+                    type: object
+                  status:
+                    type: string
+                    example: 403
+
+  /account/token:
+    post:
+      tags:
+        - Account
+      description: Get access token for quick buy - expires after 24 hours
+
+      responses:
+        200:
+          description: Access token successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  $ref: '#/components/schemas/Phone'
+                email:
+                  type: string
+                  description: Customer's email address
+                  example: test@instantenergy.com.ng
+                country:
+                  type: string
+                  description: Country of customer
+                  example: Nigeria
+
+  /account/change-pin:
+    put:
+      tags:
+        - Account
+      description: Create new pin for existing customers without pin
+      security:
+        - Authorization: [ ]
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPin:
+                  type: string
+                  example: 1234
+                  description: Old Customer Passcode
+                newPin:
+                  type: string
+                  example: 1235
+                  description: New Customer Passcode
+
+      responses:
+        200:
+          description: Pin set successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                  message:
+                    type: string
+                    example: SUCCESS
+                  status:
+                    type: string
+                    example: 200
+
+  /transaction/token/{reference}:
+    get:
+      tags:
+        - Transaction
+      description: Get a token transaction details
+      security:
+        - Authorization: [ ]
+      parameters:
+        - in: path
+          name: reference
+          required: true
+          schema:
+            description: Transaction reference
+            type: string
+
+      responses:
+        200:
+          description: 'Returns Transaction details'
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+
+  /transaction/wallet/{reference}:
+    get:
+      tags:
+        - Transaction
+      description: Get a wallet transaction details
+      security:
+        - Authorization: [ ]
+      parameters:
+        - in: path
+          name: reference
+          required: true
+          schema:
+            description: Transaction reference
+            type: string
+
+      responses:
+        200:
+          description: 'Returns Transaction details'
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+  /account/check:
+    post:
+      tags:
+        - Account
+      description: Check if a customer exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  $ref: '#/components/schemas/Phone'
+
+      responses:
+        200:
+          description: An account exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      account:
+                        $ref: '#/components/schemas/Phone'
+                  message:
+                    type: string
+                    example: SUCCESS
+                  status:
+                    type: string
+                    example: 200
+
+        400:
+          description: An account exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  data:
+                    type: object
+                    properties:
+                      account:
+                        $ref: '#/components/schemas/Phone'
+                  status:
+                    type: string
+                    example: 400
+
+  /account/pin-anonymous:
+    post:
+      tags:
+        - Account
+      description: Create new pin for existing customers without pin
+      security:
+        - Authorization: []
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pin:
+                  type: string
+                  example: 123455
+                  description: New Customer Passcode
+
+      responses:
+        200:
+          description: Pin set successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                  message:
+                    type: string
+                    example: SUCCESS
+                  status:
+                    type: string
+                    example: 200
+
+        401:
+          description: Pin set failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/401'
+
+  /account/wallet:
+    get:
+      description: Returns customer's wallet
+      tags:
+        - Account
+
+      security:
+        - Authorization: [ ]
+
+      responses:
+        200:
+          description: Returns customer's wallet
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Wallet'
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+  /account/register:
+    post:
+      tags:
+        - Account
+      description: Register a new account
+      responses:
+        200:
+          description: account registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        400:
+          description: registration failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/400'
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  $ref: '#/components/schemas/Phone'
+                firstName:
+                  type: string
+                  description: account owner firstname
+                  required: true
+                lastName:
+                  type: string
+                  required: true
+                  description: account owner lastname
+                email:
+                  type: string
+                  required: true
+                  example: johndoe@instantenergy.com.ng
+                pin:
+                  type: string
+                  example: 122344
+                  description: access pin to protect account and wallet
+                country:
+                  type: string
+                  description: country of account owner
+                  example: Nigeria
+
+  /disco:
+    get:
+      description: Returns list of active discos
+      operationId: disco
+      tags:
+        - Disco
+      parameters:
+        - name: skip
+          in: query
+          example: 0
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          example: 10
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Returns list of active discos
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Disco'
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+  /provider:
+    get:
+      description: Returns list of active providers - Disco/State
+      operationId: provider
+      tags:
+        - Provider
+      parameters:
+        - name: skip
+          in: query
+          example: 0
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          example: 10
+          schema:
+            type: integer
+
+      responses:
+        200:
+          description: 'Returns list of active states and country'
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Provider'
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+
+  /transaction/token/create:
+    post:
+      description: Create a token transaction
+      tags:
+        - Transaction
+
+      security:
+        - Authorization: [ ]
+
+      responses:
+        200:
+          description: Token transaction footprint created successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    description: Transaction footprint
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipient:
+                  $ref: '#/components/schemas/Phone'
+                provider:
+                  type: string
+                  description: Provider object ID
+                meter:
+                  type: string
+                  description: Customer meter number
+                amount:
+                  type: number
+                  description: Amount of units to be purchased
+                country:
+                  type: string
+                  description: Customer country
+
+
+  /transaction/token/generate:
+    post:
+      description: Generate token for customer
+      tags:
+        - Transaction
+
+      security:
+        - Authorization: []
+
+      responses:
+        200:
+          description: Token transaction completed successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    description: Transaction body with token
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reference:
+                  type: string
+                  description: Transaction unique reference
+
+  /transaction/token/retry:
+    post:
+      description: Retry a failed token transaction
+      tags:
+        - Transaction
+
+      security:
+        - Authorization: [ ]
+
+      responses:
+        200:
+          description: Token transaction retry
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    description: Transaction body with token
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reference:
+                  type: string
+                  description: Transaction unique reference
+
+  /transaction/token/me:
+    get:
+      description: Returns list of customer's token transations
+      tags:
+        - Transaction
+      parameters:
+        - in: query
+          name: skip
+          example: 0
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          example: 10
+          schema:
+            type: integer
+
+      security:
+        - Authorization: [ ]
+
+      responses:
+        200:
+          description: Returns list of customer's transactons
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+  /transaction/wallet/fund:
+    post:
+      description: Fund Customer wallet
+      tags:
+        - Transaction
+
+      security:
+        - Authorization: []
+
+      responses:
+        200:
+          description: Wallet fund successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    description: Transaction footprint
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reference:
+                  type: string
+                  description: Transaction unique reference
+
+
+  /transaction/wallet/me:
+    get:
+      description: Returns list of customer's wallet transations
+      tags:
+        - Transaction
+      parameters:
+        - in: query
+          name: skip
+          example: 0
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          example: 10
+          schema:
+            type: integer
+
+      security:
+        - Authorization: [ ]
+
+      responses:
+        200:
+          description: Returns list of customer's transactons
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+  /transaction/wallet/create:
+    post:
+      description: Create a wallet transaction
+      tags:
+        - Transaction
+
+      security:
+        - Authorization: []
+
+      responses:
+        200:
+          description: Wallet transaction footprint created successfully
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    description: Transaction footprint
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  description: Amount of units to be purchased
+
+
+  /meter/me:
+    get:
+      description: Returns list of customer's meters
+      tags:
+        - Meter
+      parameters:
+        - in: query
+          name: skip
+          example: 0
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          example: 10
+          schema:
+            type: integer
+
+      security:
+        - Authorization: [ ]
+
+      responses:
+        200:
+          description: Returns list of customer's meters
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Meter'
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+  /enquiry:
+    post:
+      description: Create enquiry
+      tags:
+        - Enquiry
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of enquirer
+                email:
+                  type: string
+                  description: Email address of enquirer
+                message:
+                  type: string
+                  description: Body of enquiry
+
+      responses:
+        200:
+          description: Enquiry created successful
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+  /enquiry/:
+    get:
+      description: 'Returns list of enquiries'
+      operationId: state
+      tags:
+        - Enquiry
+      parameters:
+        - in: query
+          name: skip
+          example: 0
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          example: 10
+          schema:
+            type: integer
+
+      security:
+        - Authorization: [ ]
+
+      responses:
+        200:
+          description: 'Returns enquiries'
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+
+  /state:
+    get:
+      description: 'Returns list of states  and country'
+      operationId: state
+      tags:
+        - State
+      parameters:
+        - in: query
+          name: skip
+          example: 0
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          example: 10
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Returns list of active states and country'
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/State'
+                  message:
+                    type: string
+                    example: success
+                  status:
+                    type: integer
+                    example: 200
+
+
+
+
+
