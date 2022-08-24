@@ -91,12 +91,12 @@ controller.search = async (req, res, next) => {
 controller.me = async (req, res, next) => {
   const count = await Post.countDocuments({ account: req.token._id });
 
-  const posts = Post.find({
+  const posts = await Post.find({
     account: req.token._id
   })
     .sort({ _id: -1 })
-    .limit(parseInt(data.limit))
-    .skip(parseInt(data.skip) || 0);
+    .limit(parseInt(req.query.limit) || 10)
+    .skip(parseInt(req.query.skip) || 0);
 
   return req.respond.ok(PaginateArray(posts, count, req.query.skip, req.query.limit));
 };
