@@ -1,3 +1,4 @@
+const { PaginateArray } = require('../helpers/pagination');
 const { search } = require('../services/algolia');
 const { push_post } = require('../services/algolia');
 const {
@@ -85,6 +86,19 @@ controller.search = async (req, res, next) => {
     hasPrevPage: result.page > 1
   });
 
+};
+
+controller.me = async (req, res, next) => {
+  const count = await Post.countDocuments({ account: req.token._id });
+
+  const posts = Post.find({
+    account: req.token._id
+  })
+    .sort({ _id: -1 })
+    .limit(parseInt(data.limit))
+    .skip(parseInt(data.skip) || 0);
+
+  return req.respond.ok(PaginateArray(posts, count, req.query.skip, req.query.limit));
 };
 
 controller.all = async (req, res, next) => {
