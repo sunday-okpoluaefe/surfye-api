@@ -21,5 +21,9 @@ module.exports.AccountSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  complete: {
+    type: Boolean,
+    default: false
+  },
   country: { type: String },
 }, { timestamps: true });

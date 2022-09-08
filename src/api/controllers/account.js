@@ -49,4 +49,8 @@ controller.auth = async (req, res, next) => {
 
 };
 
+controller.interest = async (req, res, next) => {
+
+}
+
 module.exports.AccountController = controller;
