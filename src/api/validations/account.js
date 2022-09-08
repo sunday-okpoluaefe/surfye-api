@@ -12,4 +12,7 @@ module.exports = {
     image: Joi.string()
       .required()
   }),
+  'put:/account/interest': Joi.object({
+    'interests': Joi.array().items(Joi.objectId()).required(),
+  })
 };

@@ -7,7 +7,7 @@ module.exports.push_post = async (post) => {
 
   let data = {
     objectID: post._id.toString(),
-    account: post.account.toString(),
+    account: post.account,
     likes: post.likes,
     title: post.title,
     favorites: post.favorites,
@@ -19,7 +19,6 @@ module.exports.push_post = async (post) => {
   try {
     await search_index.saveObject(data);
   } catch (error) {
-    console.log(error)
     throw(error);
   }
 };

@@ -15,6 +15,14 @@ module.exports.AccountSchema = new mongoose.Schema({
     enum: ['approved', 'suspended', 'pending'],
     default: 'pending'
   },
+  interests: [
+    new mongoose.Schema({
+      interest: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category'
+      },
+    }, { timestamps: true })
+  ],
   email: {
     type: String,
     required: true,

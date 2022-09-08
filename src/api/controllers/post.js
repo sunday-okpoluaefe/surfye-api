@@ -3,7 +3,8 @@ const { search } = require('../services/algolia');
 const { push_post } = require('../services/algolia');
 const {
   Post,
-  Category
+  Category,
+  Account
 } = require('../providers/models');
 const { SetErrorData } = require('../helpers/set-error-data');
 
@@ -54,13 +55,16 @@ controller.save = async (req, res, next) => {
 
   if (post.status === 'publish') {
     await push_post({
-        _id: post._id,
-        account: post.account,
-        title: post.title,
-        favorites: post.favorites,
-        description: post.description,
-        url: post.url,
-        category: category_.category
+      _id: post._id,
+      account: {
+        name: req.token.name,
+        image: req.token.image
+      },
+      title: post.title,
+      favorites: post.favorites,
+      description: post.description,
+      url: post.url,
+      category: category_.category
     });
   }
 };
@@ -117,7 +121,7 @@ controller.me = async (req, res, next) => {
     },
     limit: req.query.limit,
     skip: req.query.skip
-  })
+  });
 
   return req.respond.ok(PaginateArray(posts, count, req.query.skip, req.query.limit));
 };

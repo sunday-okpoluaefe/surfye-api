@@ -1,6 +1,8 @@
 const {
-  Account
+  Account,
+  Category
 } = require('../providers/models');
+const { SetErrorData } = require('../helpers/set-error-data');
 
 const controller = {};
 
@@ -36,7 +38,7 @@ controller.auth = async (req, res, next) => {
     name: name
   });
 
-  await account.save()
+  await account.save();
 
   return req.respond.ok({
     authorization: account.setAuthToken({ persist: true }),
@@ -51,8 +53,36 @@ controller.auth = async (req, res, next) => {
 
 };
 
-controller.interest = async (req, res, next) => {
+controller.interests = async (req, res, next) => {
+  const { interests } = req.body;
 
-}
+  let user_interests = [];
+  // Loop through interests
+  for (let i = 0; i < interests.length; i++) {
+    let cat = await Category.findById(interests[i]);
+    if (!cat) {
+      return req.respond.badRequest(SetErrorData(
+        {
+          message: 'Invalid category provided',
+          key: 'category',
+        },
+      ));
+    }
+
+    user_interests.push({
+      interest: interests[i]
+    });
+  }
+
+  let account = await Account.findById(req.token._id);
+
+  if (!account) return req.respond.forbidden();
+
+  account.interests = user_interests;
+  await account.save();
+
+  return req.respond.ok();
+
+};
 
 module.exports.AccountController = controller;
