@@ -12,7 +12,8 @@ module.exports.push_post = async (post) => {
     title: post.title,
     favorites: post.favorites,
     description: post.description,
-    url: post.url
+    url: post.url,
+    category: post.category
   };
 
   try {

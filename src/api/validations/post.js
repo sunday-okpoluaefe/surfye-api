@@ -14,5 +14,6 @@ module.exports = {
       .required(),
     url: Joi.string()
       .required(),
+    category: Joi.objectId().required(),
   }),
 };

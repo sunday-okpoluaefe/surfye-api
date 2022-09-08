@@ -57,3 +57,44 @@ const methods = {
   },
 };
 
+/**
+ * Static helper methods for mongoose models
+ */
+const statics = {
+  /**
+   * Find By Id
+   * @param {*} id
+   * @param preserveNull
+   */
+  async retrieveById(id, preserveNull = false) {
+    // retrieve one by id
+    const results = await this.retrieve({ match: { _id: mongoose.Types.ObjectId(id) } }, false, preserveNull);
+    if (!Array.isArray(results) || results.length !== 1) return null;
+    return results[0];
+  },
+
+  /**
+   * Find One
+   * @param {Object} match
+   * @param preserveNull
+   * @returns {Object}
+   */
+  // eslint-disable-next-line no-unused-vars
+  async retrieveOne(match, preserveNull) {
+    // retrieve one
+    const results = await this.retrieve({ match });
+    if (!Array.isArray(results) || results.length < 1) return null;
+    return results[0];
+  },
+
+  /**
+   * Mongoose objectId
+   * @param {String} id
+   * @returns {ObjectId}
+   */
+  objectId(id) {
+    return mongoose.Types.ObjectId(id);
+  },
+};
+
+

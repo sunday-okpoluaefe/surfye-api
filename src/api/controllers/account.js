@@ -23,7 +23,8 @@ controller.auth = async (req, res, next) => {
         _id: account._id,
         name: name,
         email: email,
-        country: country
+        country: country,
+        complete: account.complete
       },
     });
   }
@@ -43,7 +44,8 @@ controller.auth = async (req, res, next) => {
       _id: account._id,
       name: name,
       email: email,
-      country: country
+      country: country,
+      complete: account.complete
     },
   });
 

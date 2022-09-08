@@ -9,6 +9,11 @@ module.exports.PostSchema = new mongoose.Schema({
     index: true,
     ref: 'Account'
   },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    index: true,
+    ref: 'Category'
+  },
   title: { type: String },
   type: {
     type: String,

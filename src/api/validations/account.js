@@ -10,6 +10,6 @@ module.exports = {
     country: Joi.string()
       .required(),
     image: Joi.string()
-      .required(),
+      .required()
   }),
 };

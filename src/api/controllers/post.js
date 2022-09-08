@@ -2,7 +2,8 @@ const { PaginateArray } = require('../helpers/pagination');
 const { search } = require('../services/algolia');
 const { push_post } = require('../services/algolia');
 const {
-  Post
+  Post,
+  Category
 } = require('../providers/models');
 const { SetErrorData } = require('../helpers/set-error-data');
 
@@ -14,8 +15,20 @@ controller.save = async (req, res, next) => {
     url,
     description,
     type,
-    status
+    status,
+    category
   } = req.body;
+
+  let category_ = await Category.findById(category);
+
+  if (!category_) {
+    return req.respond.badRequest(SetErrorData(
+      {
+        message: 'Invalid category provided',
+        key: 'category',
+      },
+    ));
+  }
 
   let post = await Post.findOne({
     title: title,
@@ -32,20 +45,29 @@ controller.save = async (req, res, next) => {
     status: status,
     description: description,
     type: type,
-    account: req.token._id
+    account: req.token._id,
+    category
   });
 
   await post.save();
   req.respond.ok(post);
 
   if (post.status === 'publish') {
-    await push_post(post);
+    await push_post({
+        _id: post._id,
+        account: post.account,
+        title: post.title,
+        favorites: post.favorites,
+        description: post.description,
+        url: post.url,
+        category: category_.category
+    });
   }
 };
 
 controller.one = async (req, res, next) => {
   let id = req.params.id;
-  let post = await Post.findById(id);
+  let post = await Post.retrieveById(id);
 
   if (post) {
     return req.respond.ok(post);
@@ -63,8 +85,6 @@ controller.search = async (req, res, next) => {
     page: skip,
     limit: req.query.limit || 10
   });
-
-  console.log(result);
 
   return req.respond.ok({
     docs: result.hits.map(d => {
@@ -91,12 +111,13 @@ controller.search = async (req, res, next) => {
 controller.me = async (req, res, next) => {
   const count = await Post.countDocuments({ account: req.token._id });
 
-  const posts = await Post.find({
-    account: req.token._id
+  const posts = await Post.retrieve({
+    match: {
+      account: req.token._id
+    },
+    limit: req.query.limit,
+    skip: req.query.skip
   })
-    .sort({ _id: -1 })
-    .limit(parseInt(req.query.limit) || 10)
-    .skip(parseInt(req.query.skip) || 0);
 
   return req.respond.ok(PaginateArray(posts, count, req.query.skip, req.query.limit));
 };
