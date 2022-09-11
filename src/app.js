@@ -6,7 +6,6 @@ const swaggerUI = require('swagger-ui-express');
 const yaml = require('yamljs');
 const redoc = require('redoc-express');
 const cors = require('cors');
-const BugsnagPluginExpress = require('@bugsnag/plugin-express');
 
 const swaggerDocs = yaml.load('./docs.yaml');
 
@@ -24,13 +23,13 @@ const port = process.env.PORT;
 // ==================================================
 // Setting up Cross Origin Resource Sharing
 // ==================================================
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', '*');
-//   res.header('Access-Control-Allow-Credentials', true);
-//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
-//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Authorization, Content-Type, Accept, X-Auth-Token');
-//   next();
-// });
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Authorization, Content-Type, Accept, X-Auth-Token');
+  next();
+});
 
 // app.all('/*', function(req, res, next) {
 //   res.header("Access-Control-Allow-Origin", "*");
@@ -62,8 +61,6 @@ app.get(
 require('./config/database')();
 // Connect to DB
 app.set('trust proxy', true);
-
-app.use('/disco-logo', express.static(path.join(__dirname, './', 'public', 'disco')))
 
 app.use(express.json()); // attach the express json middleware
 app.use(config.get('api.basePath'), router); // attach API router
