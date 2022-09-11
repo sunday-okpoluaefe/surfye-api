@@ -1,5 +1,8 @@
 const auth = require('../services/auth');
-const { Account, Admin } = require('../providers/models');
+const {
+  Account,
+  Admin
+} = require('../providers/models');
 
 const key = process.env.APP_ENC_KEY;
 
@@ -22,6 +25,28 @@ passport.authenticate = async (req, res, next) => {
   if (!token) return req.respond.unauthorized();
 
   req.token = token;
+
+  next();
+};
+
+/**
+ * Middleware function to authenticate bearer tokens
+ */
+// eslint-disable-next-line consistent-return
+passport.checkAuthorization = async (req, res, next) => {
+  if (!req.headers.authorization) {
+    next();
+    return;
+  }
+
+  const { authorization } = req.headers;
+  const decrypted = encryptor.decrypt(authorization.substring(7));
+
+  const token = passport.isAuthenticated(decrypted);
+
+  if (token) {
+    req.token = token;
+  }
 
   next();
 };

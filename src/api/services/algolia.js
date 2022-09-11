@@ -8,9 +8,10 @@ module.exports.push_post = async (post) => {
   let data = {
     objectID: post._id.toString(),
     account: post.account,
-    likes: post.likes,
+    likes: post.likes || 0,
     title: post.title,
-    favorites: post.favorites,
+    dislikes: post.dislikes || 0,
+    visits: post.visits || 0,
     description: post.description,
     url: post.url,
     category: post.category

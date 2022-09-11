@@ -4,7 +4,8 @@ const { push_post } = require('../services/algolia');
 const {
   Post,
   Category,
-  Account
+  Reaction,
+  Favourite
 } = require('../providers/models');
 const { SetErrorData } = require('../helpers/set-error-data');
 
@@ -54,19 +55,26 @@ controller.save = async (req, res, next) => {
   req.respond.ok(post);
 
   if (post.status === 'publish') {
-    await push_post({
-      _id: post._id,
-      account: {
-        name: req.token.name,
-        image: req.token.image
-      },
-      title: post.title,
-      favorites: post.favorites,
-      description: post.description,
-      url: post.url,
-      category: category_.category
+    await controller.publish(post, {
+      name: req.token.name,
+      image: req.token.image
     });
   }
+};
+
+controller.publish = async (post, account) => {
+  let category = await Category.findById(post.category);
+  await push_post({
+    _id: post._id,
+    account: account,
+    title: post.title,
+    dislikes: post.dislikes,
+    likes: post.likes,
+    favorites: post.favorites,
+    description: post.description,
+    url: post.url,
+    category: category.category
+  });
 };
 
 controller.one = async (req, res, next) => {
@@ -90,17 +98,52 @@ controller.search = async (req, res, next) => {
     limit: req.query.limit || 10
   });
 
-  return req.respond.ok({
-    docs: result.hits.map(d => {
+  let reactions = null;
+  let hits = null;
+
+  if (req.token && req.token._id) {
+    reactions = await Reaction.find({
+      account: req.token._id
+    });
+
+    let saved = await Favourite.find({
+      account: req.token._id
+    });
+
+    hits = result.hits.map(d => {
+      let reaction = reactions.find(r => r.account.toString() === req.token._id.toString() && r.post.toString() === d.objectID.toString());
+      let isSaved = saved.find(s => s.post.toString() === d.objectID.toString());
       return {
         account: d.account,
         title: d.title,
         favorites: d.favorites,
         description: d.description,
         url: d.url,
-        _id: d.objectID
+        saved: !!isSaved,
+        _id: d.objectID,
+        reaction: reaction ? {
+          liked: reaction.liked,
+          createdAt: reaction.createdAt
+        } : undefined
       };
-    }),
+    });
+  } else {
+    hits = result.hits.map(d => {
+      return {
+        account: d.account,
+        title: d.title,
+        favorites: d.favorites,
+        description: d.description,
+        url: d.url,
+        saved: false,
+        _id: d.objectID,
+        reaction: null
+      };
+    });
+  }
+
+  return req.respond.ok({
+    docs: hits,
     page: result.page,
     limit: result.hitsPerPage,
     totalDocs: result.hits.length,
@@ -110,6 +153,86 @@ controller.search = async (req, res, next) => {
     hasPrevPage: result.page > 1
   });
 
+};
+
+controller.like = async (req, res, next) => {
+  let post = await Post.findById(req.params.post);
+  if (!post) {
+    return req.respond.notFound();
+  }
+
+  let reaction = await Reaction.findOne({
+    post: req.params.post,
+    account: req.token._id
+  });
+
+  if (reaction) {
+    if (reaction.liked === true) {
+      return req.respond.ok();
+    } else {
+      post.dislikes -= 1;
+    }
+    reaction.liked = true;
+  } else {
+    reaction = new Reaction({
+      account: req.token._id,
+      post: req.params.post,
+      liked: true
+    });
+  }
+
+  await reaction.save();
+
+  post.likes += 1;
+  req.respond.ok();
+
+  await post.save();
+
+  await controller.publish(post, {
+    name: req.token.name,
+    image: req.token.image
+  });
+
+};
+
+controller.dislike = async (req, res, next) => {
+  let post = await Post.findById(req.params.post);
+  if (!post) {
+    return req.respond.notFound();
+  }
+
+  let reaction = await Reaction.findOne({
+    post: req.params.post,
+    account: req.token._id
+  });
+
+  if (reaction) {
+    if (reaction.liked === false) {
+      return req.respond.ok();
+    } else {
+      post.likes -= 1;
+    }
+
+    reaction.liked = false;
+  } else {
+    reaction = new Reaction({
+      account: req.token._id,
+      post: req.params.post,
+      liked: false
+    });
+  }
+
+  await reaction.save();
+
+  post.dislikes += 1;
+  req.respond.ok();
+
+  await post.save();
+
+  await controller.publish(post, {
+    name: req.token.name,
+    image: req.token.image
+  });
 };
 
 controller.me = async (req, res, next) => {
