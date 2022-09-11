@@ -123,6 +123,7 @@ controller.search = async (req, res, next) => {
         dislikes: d.dislikes | 0,
         likes: d.likes | 0,
         saved: !!isSaved,
+        createdAt: d.createdAt,
         _id: d.objectID,
         reaction: reaction ? {
           liked: reaction.liked,
@@ -140,6 +141,7 @@ controller.search = async (req, res, next) => {
         url: d.url,
         dislikes: d.dislikes | 0,
         likes: d.likes | 0,
+        createdAt: d.createdAt,
         saved: false,
         _id: d.objectID
       };
