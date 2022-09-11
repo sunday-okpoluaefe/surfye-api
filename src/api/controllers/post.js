@@ -136,8 +136,7 @@ controller.search = async (req, res, next) => {
         description: d.description,
         url: d.url,
         saved: false,
-        _id: d.objectID,
-        reaction: null
+        _id: d.objectID
       };
     });
   }
