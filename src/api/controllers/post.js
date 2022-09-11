@@ -73,6 +73,7 @@ controller.publish = async (post, account) => {
     favorites: post.favorites,
     description: post.description,
     url: post.url,
+    createdAt: post.createdAt,
     category: category.category
   });
 };

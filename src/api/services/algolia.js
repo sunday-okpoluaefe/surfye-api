@@ -14,6 +14,7 @@ module.exports.push_post = async (post) => {
     visits: post.visits || 0,
     description: post.description,
     url: post.url,
+    createdAt: post.createdAt,
     category: post.category
   };
 
