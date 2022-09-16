@@ -161,7 +161,7 @@ controller.search = async (req, res, next) => {
 
 };
 
-controller.visits = async (req, res, next) => {
+controller.visit = async (req, res, next) => {
   let post = await Post.findById(req.params.post);
   if (!post) {
     return req.respond.notFound();
