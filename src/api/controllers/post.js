@@ -161,6 +161,17 @@ controller.search = async (req, res, next) => {
 
 };
 
+controller.visits = async (req, res, next) => {
+  let post = await Post.findById(req.params.post);
+  if (!post) {
+    return req.respond.notFound();
+  }
+
+  post.visits += 1;
+  req.respond.ok();
+  await post.save();
+};
+
 controller.like = async (req, res, next) => {
   let post = await Post.findById(req.params.post);
   if (!post) {
