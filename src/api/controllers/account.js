@@ -79,6 +79,8 @@ controller.interests = async (req, res, next) => {
   if (!account) return req.respond.forbidden();
 
   account.interests = user_interests;
+  account.complete = true;
+
   await account.save();
 
   return req.respond.ok();
