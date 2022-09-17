@@ -1,3 +1,5 @@
+const { get_graph } = require('../services/url_grapher');
+const { push_visit } = require('../services/algolia');
 const { PaginateArray } = require('../helpers/pagination');
 const { search } = require('../services/algolia');
 const { push_post } = require('../services/algolia');
@@ -54,6 +56,12 @@ controller.save = async (req, res, next) => {
   await post.save();
   req.respond.ok(post);
 
+  let graph = await get_graph(post.url);
+  if (graph !== null) {
+    post.graph = graph;
+    await post.save();
+  }
+
   if (post.status === 'publish') {
     await controller.publish(post, {
       name: req.token.name,
@@ -73,6 +81,11 @@ controller.publish = async (post, account) => {
     favorites: post.favorites,
     description: post.description,
     url: post.url,
+    graph: post.graph !== null ? {
+      image: post.graph.ogImage,
+      title: post.graph.ogTitle,
+      description: post.graph.ogDescription
+    } : undefined,
     createdAt: post.createdAt,
     category: category.category
   });
@@ -170,6 +183,8 @@ controller.visit = async (req, res, next) => {
   post.visits += 1;
   req.respond.ok();
   await post.save();
+
+  await push_visit(post);
 };
 
 controller.like = async (req, res, next) => {

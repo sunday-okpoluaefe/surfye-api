@@ -34,6 +34,7 @@
     "morgan": "^1.10.0",
     "nodemailer": "^6.7.2",
     "nodemon": "^2.0.4",
+    "open-graph-scraper": "^4.11.1",
     "rate-limiter-flexible": "^2.2.4",
     "redoc-express": "^1.0.0",
     "simple-encryptor": "^4.0.0",

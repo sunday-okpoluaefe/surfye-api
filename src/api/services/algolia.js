@@ -14,8 +14,22 @@ module.exports.push_post = async (post) => {
     visits: post.visits || 0,
     description: post.description,
     url: post.url,
+    graph: post.graph,
     createdAt: post.createdAt,
     category: post.category
+  };
+
+  try {
+    await search_index.saveObject(data);
+  } catch (error) {
+    throw(error);
+  }
+};
+
+module.exports.push_visit = async (post) => {
+  let data = {
+    objectID: post._id.toString(),
+    visits: post.visits || 0
   };
 
   try {

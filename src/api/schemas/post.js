@@ -43,5 +43,6 @@ module.exports.PostSchema = new mongoose.Schema({
     required: true,
     trim: true,
     lowercase: true
-  }
+  },
+  graph: { type: Object },
 }, { timestamps: true });
