@@ -103,7 +103,6 @@ controller.one = async (req, res, next) => {
 };
 
 controller.search = async (req, res, next) => {
-
   let skip = req.query.skip ? req.query.skip - 1 : 0;
   let result = await search({
     query: req.query.query,
@@ -269,6 +268,51 @@ controller.dislike = async (req, res, next) => {
   });
 };
 
+controller.transform = async (posts, account) => {
+
+  let reactions = await Reaction.find({
+    account: account._id
+  });
+
+  let saved = await Favourite.find({
+    account: account._id
+  });
+
+  return posts.map(post => {
+
+    let reaction = reactions.find(r => r.account.toString() === account._id.toString() && r.post.toString() === post._id.toString());
+    let isSaved = saved.find(s => s.post.toString() === post._id.toString());
+
+    return {
+      account: {
+        _id: account._id,
+        name: account.name,
+        image: account.image
+      },
+      title: post.title,
+      favorites: post.favorites,
+      description: post.description,
+      url: post.url,
+      dislikes: post.dislikes | 0,
+      likes: post.likes | 0,
+      saved: !!isSaved,
+      graph: (post.graph !== undefined && post.graph != null) ? {
+        image: post.graph.ogImage || undefined,
+        title: post.graph.ogTitle,
+        description: post.graph.ogDescription
+      } : undefined,
+      createdAt: post.createdAt,
+      _id: post._id,
+      reaction: reaction ? {
+        liked: reaction.liked,
+        createdAt: reaction.createdAt
+      } : undefined
+    };
+
+  });
+
+};
+
 controller.me = async (req, res, next) => {
   const count = await Post.countDocuments({ account: req.token._id });
 
@@ -280,7 +324,13 @@ controller.me = async (req, res, next) => {
     skip: req.query.skip
   });
 
-  return req.respond.ok(PaginateArray(posts, count, req.query.skip, req.query.limit));
+  let data = await controller.transform(posts, {
+    _id: req.token._id,
+    name: req.token.name,
+    image: req.token.image
+  });
+
+  return req.respond.ok(PaginateArray(data, count, req.query.skip, req.query.limit));
 };
 
 controller.all = async (req, res, next) => {
