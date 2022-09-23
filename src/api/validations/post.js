@@ -10,8 +10,7 @@ module.exports = {
     status: Joi.string()
       .valid('draft', 'publish')
       .required(),
-    description: Joi.string()
-      .required(),
+    description: Joi.string(),
     url: Joi.string()
       .required(),
     category: Joi.objectId().required(),
