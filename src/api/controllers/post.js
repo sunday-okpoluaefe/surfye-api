@@ -112,7 +112,7 @@ controller.search = async (req, res, next) => {
   });
 
   let reactions = null;
-  let hits = null;
+  let hits;
 
   if (req.token && req.token._id) {
     reactions = await Reaction.find({
@@ -123,6 +123,8 @@ controller.search = async (req, res, next) => {
       account: req.token._id
     });
 
+    console.log(result.hits)
+
     hits = result.hits.map(d => {
       let reaction = reactions.find(r => r.account.toString() === req.token._id.toString() && r.post.toString() === d.objectID.toString());
       let isSaved = saved.find(s => s.post.toString() === d.objectID.toString());
@@ -130,6 +132,7 @@ controller.search = async (req, res, next) => {
         account: d.account,
         title: d.title,
         favorites: d.favorites,
+        category: d.category,
         description: d.description,
         url: d.url,
         dislikes: d.dislikes | 0,
@@ -149,6 +152,7 @@ controller.search = async (req, res, next) => {
       return {
         account: d.account,
         title: d.title,
+        category: d.category,
         favorites: d.favorites,
         description: d.description,
         url: d.url,
@@ -268,8 +272,51 @@ controller.dislike = async (req, res, next) => {
   });
 };
 
-controller.transform = async (posts, account) => {
+controller.transformFavourite = async (posts, account) => {
+  let reactions = await Reaction.find({
+    account: account._id
+  });
 
+  let saved = await Favourite.find({
+    account: account._id
+  });
+
+  return posts.map(fav => {
+
+    let reaction = reactions.find(r => r.account.toString() === account._id.toString() && r.post.toString() === fav.post._id.toString());
+    let isSaved = saved.find(s => s.post.toString() === fav.post._id.toString());
+
+    return {
+      account: {
+        _id: account._id,
+        name: account.name,
+        image: account.image
+      },
+      title: fav.post.title,
+      favorites: fav.post.favorites,
+      description: fav.post.description,
+      url: fav.post.url,
+      dislikes: fav.post.dislikes | 0,
+      likes: fav.post.likes | 0,
+      saved: !!isSaved,
+      category: fav.post.category.category,
+      graph: (fav.post.graph !== undefined && fav.post.graph != null) ? {
+        image: fav.post.graph.ogImage || undefined,
+        title: fav.post.graph.ogTitle,
+        description: fav.post.graph.ogDescription
+      } : undefined,
+      createdAt: fav.post.createdAt,
+      _id: fav.post._id,
+      reaction: reaction ? {
+        liked: reaction.liked,
+        createdAt: reaction.createdAt
+      } : undefined
+    };
+
+  });
+};
+
+controller.transform = async (posts, account) => {
   let reactions = await Reaction.find({
     account: account._id
   });
@@ -296,6 +343,7 @@ controller.transform = async (posts, account) => {
       dislikes: post.dislikes | 0,
       likes: post.likes | 0,
       saved: !!isSaved,
+      category: post.category.category,
       graph: (post.graph !== undefined && post.graph != null) ? {
         image: post.graph.ogImage || undefined,
         title: post.graph.ogTitle,
@@ -310,25 +358,71 @@ controller.transform = async (posts, account) => {
     };
 
   });
-
 };
 
 controller.me = async (req, res, next) => {
-  const count = await Post.countDocuments({ account: req.token._id });
+  let status = req.query.status;
+  let count = 0;
+  let posts = null;
+  let data = null;
 
-  const posts = await Post.retrieve({
-    match: {
-      account: req.token._id
-    },
-    limit: req.query.limit,
-    skip: req.query.skip
-  });
+  if (status) {
+    if (status === 'draft') {
+      count = await Post.countDocuments({
+        account: req.token._id,
+        status: status
+      });
 
-  let data = await controller.transform(posts, {
-    _id: req.token._id,
-    name: req.token.name,
-    image: req.token.image
-  });
+      posts = await Post.retrieve({
+        match: {
+          account: req.token._id,
+          status: status
+        },
+        limit: req.query.limit,
+        skip: req.query.skip
+      });
+
+      data = await controller.transform(posts, {
+        _id: req.token._id,
+        name: req.token.name,
+        image: req.token.image
+      });
+
+    } else if (status === 'saved') {
+      count = await Favourite.countDocuments({
+        account: req.token._id
+      });
+
+      posts = await Favourite.retrieve({
+        match: {
+          account: req.token._id
+        },
+        limit: req.query.limit,
+        skip: req.query.skip
+      });
+
+      data = await controller.transformFavourite(posts, {
+        _id: req.token._id,
+        name: req.token.name,
+        image: req.token.image
+      });
+    }
+  } else {
+    count = await Post.countDocuments({ account: req.token._id });
+    posts = await Post.retrieve({
+      match: {
+        account: req.token._id
+      },
+      limit: req.query.limit,
+      skip: req.query.skip
+    });
+
+    data = await controller.transform(posts, {
+      _id: req.token._id,
+      name: req.token.name,
+      image: req.token.image
+    });
+  }
 
   return req.respond.ok(PaginateArray(data, count, req.query.skip, req.query.limit));
 };
