@@ -5,6 +5,7 @@ const { Pagination } = require('../helpers/pagination');
 class Model {
   static create(name, schema) {
     Object.assign(schema.methods, methods);
+    Object.assign(schema.statics, statics)
 
     return mongoose.model(name, schema);
   }
@@ -35,7 +36,10 @@ const methods = {
   },
 
   getLean() {
-    return this.toObject({ getters: true, flattenMaps: true });
+    return this.toObject({
+      getters: true,
+      flattenMaps: true
+    });
   },
 
   /**
@@ -51,7 +55,9 @@ const methods = {
         } else {
           this[key].push(...arr[key]);
         }
-      } else this[key] = arr[key];
+      } else {
+        this[key] = arr[key];
+      }
     }
     return this;
   },
@@ -66,9 +72,9 @@ const statics = {
    * @param {*} id
    * @param preserveNull
    */
-  async retrieveById(id, preserveNull = false) {
+  async retrieveById(id) {
     // retrieve one by id
-    const results = await this.retrieve({ match: { _id: mongoose.Types.ObjectId(id) } }, false, preserveNull);
+    const results = await this.retrieve({ match: { _id: mongoose.Types.ObjectId(id) } });
     if (!Array.isArray(results) || results.length !== 1) return null;
     return results[0];
   },
