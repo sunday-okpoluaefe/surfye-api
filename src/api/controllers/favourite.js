@@ -20,6 +20,10 @@ controller.add = async (req, res, next) => {
   });
 
   if (fav) {
+    if (fav.deleted === true) {
+      fav.deleted = false;
+      await fav.save();
+    }
     return req.respond.ok();
   }
 

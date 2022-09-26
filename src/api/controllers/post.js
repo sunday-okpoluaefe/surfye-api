@@ -120,10 +120,9 @@ controller.search = async (req, res, next) => {
     });
 
     let saved = await Favourite.find({
-      account: req.token._id
+      account: req.token._id,
+      deleted: false
     });
-
-    console.log(result.hits)
 
     hits = result.hits.map(d => {
       let reaction = reactions.find(r => r.account.toString() === req.token._id.toString() && r.post.toString() === d.objectID.toString());
@@ -278,7 +277,8 @@ controller.transformFavourite = async (posts, account) => {
   });
 
   let saved = await Favourite.find({
-    account: account._id
+    account: account._id,
+    deleted: false
   });
 
   return posts.map(fav => {
@@ -322,7 +322,8 @@ controller.transform = async (posts, account) => {
   });
 
   let saved = await Favourite.find({
-    account: account._id
+    account: account._id,
+    deleted: false
   });
 
   return posts.map(post => {
@@ -390,7 +391,8 @@ controller.me = async (req, res, next) => {
 
     } else if (status === 'saved') {
       count = await Favourite.countDocuments({
-        account: req.token._id
+        account: req.token._id,
+        deleted: false
       });
 
       posts = await Favourite.retrieve({
