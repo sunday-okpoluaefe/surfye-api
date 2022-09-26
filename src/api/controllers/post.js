@@ -65,7 +65,8 @@ controller.save = async (req, res, next) => {
   if (post.status === 'publish') {
     await controller.publish(post, {
       name: req.token.name,
-      image: req.token.image
+      image: req.token.image,
+      _id: req.token._id
     });
   }
 };
@@ -127,6 +128,9 @@ controller.search = async (req, res, next) => {
     hits = result.hits.map(d => {
       let reaction = reactions.find(r => r.account.toString() === req.token._id.toString() && r.post.toString() === d.objectID.toString());
       let isSaved = saved.find(s => s.post.toString() === d.objectID.toString());
+
+      let acct = d.account._id ? d.account._id.toString() : "";
+
       return {
         account: d.account,
         title: d.title,
@@ -138,6 +142,7 @@ controller.search = async (req, res, next) => {
         likes: d.likes | 0,
         saved: !!isSaved,
         graph: d.graph,
+        isOwner: acct === req.token._id.toString(),
         createdAt: d.createdAt,
         _id: d.objectID,
         reaction: reaction ? {
@@ -155,6 +160,7 @@ controller.search = async (req, res, next) => {
         favorites: d.favorites,
         description: d.description,
         url: d.url,
+        isOwner: false,
         graph: d.graph,
         dislikes: d.dislikes | 0,
         likes: d.likes | 0,
@@ -226,7 +232,8 @@ controller.like = async (req, res, next) => {
 
   await controller.publish(post, {
     name: req.token.name,
-    image: req.token.image
+    image: req.token.image,
+    _id: req.token._id
   });
 
 };
@@ -267,7 +274,8 @@ controller.dislike = async (req, res, next) => {
 
   await controller.publish(post, {
     name: req.token.name,
-    image: req.token.image
+    image: req.token.image,
+    _id: req.token._id
   });
 };
 
@@ -296,6 +304,7 @@ controller.transformFavourite = async (posts, account) => {
       favorites: fav.post.favorites,
       description: fav.post.description,
       url: fav.post.url,
+      isOwner: fav.account._id.toString() === account._id,
       dislikes: fav.post.dislikes | 0,
       likes: fav.post.likes | 0,
       saved: !!isSaved,
@@ -344,6 +353,7 @@ controller.transform = async (posts, account) => {
       dislikes: post.dislikes | 0,
       likes: post.likes | 0,
       saved: !!isSaved,
+      isOwner: post.account._id.toString() === account._id.toString(),
       category: post.category.category,
       graph: (post.graph !== undefined && post.graph != null) ? {
         image: post.graph.ogImage || undefined,
