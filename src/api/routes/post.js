@@ -13,6 +13,6 @@ router.post('/dislike/:post', middlewares.passport.authenticate, middlewares.val
 router.post('/visit/:post', middlewares.validateRequest, middlewares.async(PostController.visit));
 
 router.post('/', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.save));
-router.get('/:id', middlewares.validateRequest, middlewares.async(PostController.one));
+router.get('/:id', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.one));
 
 module.exports.PostRoutes = router;
