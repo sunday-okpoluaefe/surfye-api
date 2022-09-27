@@ -104,7 +104,7 @@ controller.one = async (req, res, next) => {
       image: req.token.image
     });
 
-    return req.respond.ok(data);
+    return req.respond.ok(data[0]);
   } else {
     return req.respond.notFound();
   }
