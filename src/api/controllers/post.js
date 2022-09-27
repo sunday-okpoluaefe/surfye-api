@@ -97,7 +97,14 @@ controller.one = async (req, res, next) => {
   let post = await Post.retrieveById(id);
 
   if (post) {
-    return req.respond.ok(post);
+
+    let data = await controller.transform([post], {
+      _id: req.token._id,
+      name: req.token.name,
+      image: req.token.image
+    });
+
+    return req.respond.ok(data);
   } else {
     return req.respond.notFound();
   }
@@ -129,7 +136,7 @@ controller.search = async (req, res, next) => {
       let reaction = reactions.find(r => r.account.toString() === req.token._id.toString() && r.post.toString() === d.objectID.toString());
       let isSaved = saved.find(s => s.post.toString() === d.objectID.toString());
 
-      let acct = d.account._id ? d.account._id.toString() : "";
+      let acct = d.account._id ? d.account._id.toString() : '';
 
       return {
         account: d.account,
