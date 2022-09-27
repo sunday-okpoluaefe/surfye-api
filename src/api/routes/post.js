@@ -14,5 +14,6 @@ router.post('/visit/:post', middlewares.validateRequest, middlewares.async(PostC
 
 router.post('/', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.save));
 router.get('/:id', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.one));
+router.put('/:id', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.update));
 
 module.exports.PostRoutes = router;

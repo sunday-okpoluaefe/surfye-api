@@ -13,6 +13,40 @@ const { SetErrorData } = require('../helpers/set-error-data');
 
 const controller = {};
 
+controller.update = async (req, res, next) => {
+  let id = req.params.id;
+
+  const {
+    title,
+    url,
+    description,
+    type,
+    status,
+    category
+  } = req.body;
+
+  let post = await Post.findById(id);
+
+  if (!post) {
+    return req.respond.notFound();
+  }
+
+  post.title = title;
+  post.url = url;
+  post.status = status;
+  post.description = description;
+  post.type = type;
+  post.category = category;
+
+  let graph = await get_graph(post.url);
+  if (graph !== null) {
+    post.graph = graph;
+  }
+
+  await post.save();
+  return req.respond.ok();
+};
+
 controller.save = async (req, res, next) => {
   const {
     title,
