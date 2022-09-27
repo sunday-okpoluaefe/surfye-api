@@ -105,6 +105,25 @@ controller.save = async (req, res, next) => {
   }
 };
 
+controller.publishPost = async (req, res, next) => {
+  let id = req.params.post;
+  let post = await Post.findById(id);
+
+  if (!post) {
+    return req.respond.notFound();
+  }
+
+  if (post.status === 'draft') {
+    await controller.publish(post, {
+      name: req.token.name,
+      image: req.token.image,
+      _id: req.token._id
+    });
+  }
+
+  return req.respond.ok();
+};
+
 controller.publish = async (post, account) => {
   let category = await Category.findById(post.category);
   await push_post({
