@@ -42,7 +42,8 @@ module.exports.push_visit = async (post) => {
 module.exports.push_likes = async (post) => {
   let data = {
     objectID: post._id.toString(),
-    likes: post.likes || 0
+    likes: post.likes || 0,
+    dislikes: post.dislikes || 0
   };
 
   try {
