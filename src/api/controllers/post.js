@@ -1,3 +1,4 @@
+const { push_likes } = require('../services/algolia');
 const { get_graph } = require('../services/url_grapher');
 const { push_visit } = require('../services/algolia');
 const { PaginateArray } = require('../helpers/pagination');
@@ -299,13 +300,7 @@ controller.like = async (req, res, next) => {
   req.respond.ok();
 
   await post.save();
-
-  await controller.publish(post, {
-    name: req.token.name,
-    image: req.token.image,
-    _id: req.token._id
-  });
-
+  await push_likes(post);
 };
 
 controller.dislike = async (req, res, next) => {
@@ -341,12 +336,7 @@ controller.dislike = async (req, res, next) => {
   req.respond.ok();
 
   await post.save();
-
-  await controller.publish(post, {
-    name: req.token.name,
-    image: req.token.image,
-    _id: req.token._id
-  });
+  await push_likes(post);
 };
 
 controller.transformFavourite = async (posts, account) => {

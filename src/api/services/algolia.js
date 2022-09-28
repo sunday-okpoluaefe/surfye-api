@@ -39,6 +39,19 @@ module.exports.push_visit = async (post) => {
   }
 };
 
+module.exports.push_likes = async (post) => {
+  let data = {
+    objectID: post._id.toString(),
+    likes: post.likes || 0
+  };
+
+  try {
+    await search_index.saveObject(data);
+  } catch (error) {
+    throw(error);
+  }
+};
+
 module.exports.deleteObject = async (objectId) => {
   try {
     await search_index.deleteObject(objectId);
