@@ -9,10 +9,14 @@ FavouriteSchema.statics.retrieve = function (data) {
     .populate('account', '_id name image')
     .populate({
       path: 'post',
-      populate: {
+      populate: [{
         path: 'category',
         model: 'Category'
-      }
+      }, {
+        path: 'account',
+        model: 'Account',
+        select: '_id name image'
+      }],
     })
     .sort({ _id: -1 })
     .limit(parseInt(data.limit) || 10)

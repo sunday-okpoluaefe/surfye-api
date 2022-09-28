@@ -356,15 +356,15 @@ controller.transformFavourite = async (posts, account) => {
 
     return {
       account: {
-        _id: account._id,
-        name: account.name,
-        image: account.image
+        _id: fav.post.account._id,
+        name: fav.post.account.name,
+        image: fav.post.account.image
       },
       title: fav.post.title,
       favorites: fav.post.favorites,
       description: fav.post.description,
       url: fav.post.url,
-      isOwner: fav.account._id.toString() === account._id,
+      isOwner: fav.post.account._id.toString() === account._id,
       dislikes: fav.post.dislikes | 0,
       likes: fav.post.likes | 0,
       saved: !!isSaved,
