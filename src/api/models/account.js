@@ -21,7 +21,6 @@ AccountSchema.pre('save', async function (next) {
  * @returns {String}
  */
 AccountSchema.methods.setAuthToken = function (params) {
-  // ioredis supports all Redis commands:
   let token = auth.sign({
     anonymous: false,
     _id: this._id,

@@ -44,7 +44,15 @@ controller.update = async (req, res, next) => {
   }
 
   await post.save();
-  return req.respond.ok();
+  req.respond.ok();
+
+  if (post.status === 'publish') {
+    await controller.publish(post, {
+      name: req.token.name,
+      image: req.token.image,
+      _id: req.token._id
+    });
+  }
 };
 
 controller.save = async (req, res, next) => {
@@ -352,7 +360,6 @@ controller.transformFavourite = async (posts, account) => {
   });
 
   return posts.map(fav => {
-
     let reaction = reactions.find(r => r.account.toString() === account._id.toString() && r.post.toString() === fav.post._id.toString());
     let isSaved = saved.find(s => s.post.toString() === fav.post._id.toString());
 
