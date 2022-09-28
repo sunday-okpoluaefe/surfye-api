@@ -33,7 +33,7 @@ module.exports.push_visit = async (post) => {
   };
 
   try {
-    await search_index.saveObject(data);
+    await search_index.partialUpdateObject(data);
   } catch (error) {
     throw(error);
   }
@@ -47,7 +47,7 @@ module.exports.push_likes = async (post) => {
   };
 
   try {
-    await search_index.saveObject(data);
+    await search_index.partialUpdateObject(data);
   } catch (error) {
     throw(error);
   }
