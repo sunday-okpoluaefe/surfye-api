@@ -113,15 +113,17 @@ controller.publishPost = async (req, res, next) => {
     return req.respond.notFound();
   }
 
+  req.respond.ok();
+
   if (post.status === 'draft') {
+    post.status = 'publish';
+    await post.save();
     await controller.publish(post, {
       name: req.token.name,
       image: req.token.image,
       _id: req.token._id
     });
   }
-
-  return req.respond.ok();
 };
 
 controller.publish = async (post, account) => {
