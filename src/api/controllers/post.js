@@ -475,7 +475,8 @@ controller.me = async (req, res, next) => {
 
       posts = await Favourite.retrieve({
         match: {
-          account: req.token._id
+          account: req.token._id,
+          deleted: false
         },
         limit: req.query.limit,
         skip: req.query.skip
