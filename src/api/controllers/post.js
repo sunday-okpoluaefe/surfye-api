@@ -255,6 +255,52 @@ controller.search = async (req, res, next) => {
 
 };
 
+controller.random = async (req, res, next) => {
+  let count = await Post.countDocuments();
+  const random = Math.floor(Math.random() * count);
+  let random_posts = await Post.retrieve({
+    skip: random,
+    limit: 10
+  })
+
+  let transformed;
+
+  if(req.token && req.token._id) {
+    transformed = await controller.transform(random_posts, {
+      _id: req.token._id,
+      name: req.token.name,
+      image: req.token.image
+    })
+  }
+
+  else {
+    transformed = random_posts.map( post => {
+      return {
+        account: undefined,
+        title: post.title,
+        favorites: post.favorites,
+        description: post.description,
+        url: post.url,
+        dislikes: post.dislikes | 0,
+        likes: post.likes | 0,
+        saved: false,
+        isOwner: false,
+        category: post.category ? post.category.category : undefined,
+        graph: (post.graph !== undefined && post.graph != null) ? {
+          image: post.graph.ogImage || undefined,
+          title: post.graph.ogTitle,
+          description: post.graph.ogDescription
+        } : undefined,
+        createdAt: post.createdAt,
+        _id: post._id,
+        reaction: undefined
+      };
+    })
+  }
+
+  return req.respond.ok(PaginateArray(transformed, random_posts.length, 0, 10));
+}
+
 controller.visit = async (req, res, next) => {
   let post = await Post.findById(req.params.post);
   if (!post) {
