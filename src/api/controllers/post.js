@@ -1,3 +1,4 @@
+const { deleteObject } = require('../services/algolia');
 const { push_likes } = require('../services/algolia');
 const { get_graph } = require('../services/url_grapher');
 const { push_visit } = require('../services/algolia');
@@ -132,6 +133,23 @@ controller.publishPost = async (req, res, next) => {
       image: req.token.image,
       _id: req.token._id
     });
+  }
+};
+
+controller.unPublishPost = async (req, res, next) => {
+  let id = req.params.post;
+  let post = await Post.findById(id);
+
+  if (!post) {
+    return req.respond.notFound();
+  }
+
+  req.respond.ok();
+
+  if (post.status === 'publish') {
+    post.status = 'draft';
+    await post.save();
+    await deleteObject(post._id)
   }
 };
 

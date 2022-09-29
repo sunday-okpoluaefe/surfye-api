@@ -13,6 +13,7 @@ router.post('/like/:post', middlewares.passport.authenticate, middlewares.valida
 router.post('/dislike/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.dislike));
 router.post('/visit/:post', middlewares.validateRequest, middlewares.async(PostController.visit));
 router.post('/publish/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.publishPost));
+router.delete('/publish/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.unPublishPost));
 
 router.post('/', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.save));
 router.get('/:id', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.one));
