@@ -261,20 +261,18 @@ controller.random = async (req, res, next) => {
   let random_posts = await Post.retrieve({
     skip: random,
     limit: 10
-  })
+  });
 
   let transformed;
 
-  if(req.token && req.token._id) {
+  if (req.token && req.token._id) {
     transformed = await controller.transform(random_posts, {
       _id: req.token._id,
       name: req.token.name,
       image: req.token.image
-    })
-  }
-
-  else {
-    transformed = random_posts.map( post => {
+    }, true);
+  } else {
+    transformed = random_posts.map(post => {
       return {
         account: undefined,
         title: post.title,
@@ -295,11 +293,11 @@ controller.random = async (req, res, next) => {
         _id: post._id,
         reaction: undefined
       };
-    })
+    });
   }
 
   return req.respond.ok(PaginateArray(transformed, random_posts.length, 0, 10));
-}
+};
 
 controller.visit = async (req, res, next) => {
   let post = await Post.findById(req.params.post);
@@ -436,7 +434,7 @@ controller.transformFavourite = async (posts, account) => {
   });
 };
 
-controller.transform = async (posts, account) => {
+controller.transform = async (posts, account, random = false) => {
   let reactions = await Reaction.find({
     account: account._id
   });
@@ -452,11 +450,15 @@ controller.transform = async (posts, account) => {
     let isSaved = saved.find(s => s.post.toString() === post._id.toString());
 
     return {
-      account: {
+      account: random === false ? {
         _id: account._id,
         name: account.name,
         image: account.image
-      },
+      } : post.account ? {
+        _id: post.account._id,
+        name: post.account.name,
+        image: post.account.image
+      } : undefined,
       title: post.title,
       favorites: post.favorites,
       description: post.description,
@@ -464,8 +466,8 @@ controller.transform = async (posts, account) => {
       dislikes: post.dislikes | 0,
       likes: post.likes | 0,
       saved: !!isSaved,
-      isOwner: post.account._id.toString() === account._id.toString(),
-      category: post.category.category,
+      isOwner: post.account ? post.account._id.toString() === account._id.toString() : false,
+      category: post.category ? post.category.category : undefined,
       graph: (post.graph !== undefined && post.graph != null) ? {
         image: post.graph.ogImage || undefined,
         title: post.graph.ogTitle,
