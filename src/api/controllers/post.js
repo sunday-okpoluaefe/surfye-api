@@ -1,3 +1,4 @@
+const { Account } = require('../models/account');
 const { deleteObject } = require('../services/algolia');
 const { push_likes } = require('../services/algolia');
 const { get_graph } = require('../services/url_grapher');
@@ -17,6 +18,11 @@ const controller = {};
 
 controller.update = async (req, res, next) => {
   let id = req.params.id;
+  let account = await Account.findById(req.token._id);
+
+  if (!account) {
+    return req.respond.unauthorized();
+  }
 
   const {
     title,
@@ -67,6 +73,12 @@ controller.save = async (req, res, next) => {
     category
   } = req.body;
 
+  let account = await Account.findById(req.token._id);
+
+  if (!account) {
+    return req.respond.unauthorized();
+  }
+
   let category_ = await Category.findById(category);
 
   if (!category_) {
@@ -116,6 +128,13 @@ controller.save = async (req, res, next) => {
 };
 
 controller.publishPost = async (req, res, next) => {
+
+  let account = await Account.findById(req.token._id);
+
+  if (!account) {
+    return req.respond.unauthorized();
+  }
+
   let id = req.params.post;
   let post = await Post.findById(id);
 
@@ -138,6 +157,13 @@ controller.publishPost = async (req, res, next) => {
 
 controller.unPublishPost = async (req, res, next) => {
   let id = req.params.post;
+
+  let account = await Account.findById(req.token._id);
+
+  if (!account) {
+    return req.respond.unauthorized();
+  }
+
   let post = await Post.findById(id);
 
   if (!post) {
@@ -149,7 +175,7 @@ controller.unPublishPost = async (req, res, next) => {
   if (post.status === 'publish') {
     post.status = 'draft';
     await post.save();
-    await deleteObject(post._id)
+    await deleteObject(post._id);
   }
 };
 
@@ -366,6 +392,12 @@ controller.like = async (req, res, next) => {
 };
 
 controller.dislike = async (req, res, next) => {
+  let account = await Account.findById(req.token._id);
+
+  if (!account) {
+    return req.respond.unauthorized();
+  }
+
   let post = await Post.findById(req.params.post);
   if (!post) {
     return req.respond.notFound();
