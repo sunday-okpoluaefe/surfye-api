@@ -17,5 +17,12 @@ module.exports.ReactionSchema = new mongoose.Schema({
   liked: {
     type: Boolean,
     default: false
+  },
+  flagged: {
+    value: {
+      type: Boolean,
+      default: false
+    },
+    reason: { type: String }
   }
 }, { timestamps: true });

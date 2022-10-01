@@ -10,6 +10,7 @@ router.get('/random', middlewares.passport.checkAuthorization, middlewares.valid
 router.get('/search', middlewares.passport.checkAuthorization, middlewares.validateRequest, middlewares.async(PostController.search));
 router.get('/me', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.me));
 router.post('/like/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.like));
+router.post('/flag/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.flag));
 router.post('/dislike/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.dislike));
 router.post('/visit/:post', middlewares.validateRequest, middlewares.async(PostController.visit));
 router.post('/publish/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.publishPost));

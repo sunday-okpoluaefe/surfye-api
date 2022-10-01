@@ -32,6 +32,10 @@ module.exports.PostSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  flagged: {
+    type: Number,
+    default: 0
+  },
   description: { type: String },
   status: {
     type: String,

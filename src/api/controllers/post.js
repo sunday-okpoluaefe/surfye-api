@@ -1,3 +1,4 @@
+const { Sanitizer } = require('../helpers/sanitizer');
 const { Account } = require('../models/account');
 const { deleteObject } = require('../services/algolia');
 const { push_likes } = require('../services/algolia');
@@ -187,6 +188,7 @@ controller.publish = async (post, account) => {
     title: post.title,
     dislikes: post.dislikes,
     likes: post.likes,
+    flagged: post.flagged,
     favorites: post.favorites,
     description: post.description,
     url: post.url,
@@ -244,6 +246,8 @@ controller.search = async (req, res, next) => {
       let reaction = reactions.find(r => r.account.toString() === req.token._id.toString() && r.post.toString() === d.objectID.toString());
       let isSaved = saved.find(s => s.post.toString() === d.objectID.toString());
 
+      if (reaction && reaction.flagged && reaction.flagged.value === true) return undefined;
+
       let acct = d.account._id ? d.account._id.toString() : '';
 
       return {
@@ -253,6 +257,7 @@ controller.search = async (req, res, next) => {
         category: d.category,
         description: d.description,
         url: d.url,
+        flagged: d.flagged ? d.flagged : false,
         dislikes: d.dislikes | 0,
         likes: d.likes | 0,
         saved: !!isSaved,
@@ -275,6 +280,7 @@ controller.search = async (req, res, next) => {
         favorites: d.favorites,
         description: d.description,
         url: d.url,
+        flagged: d.flagged ? d.flagged : false,
         isOwner: false,
         graph: d.graph,
         dislikes: d.dislikes | 0,
@@ -285,6 +291,10 @@ controller.search = async (req, res, next) => {
       };
     });
   }
+
+  hits = hits.filter(function (result) {
+    return result !== null && result !== undefined;
+  });
 
   return req.respond.ok({
     docs: hits,
@@ -354,6 +364,41 @@ controller.visit = async (req, res, next) => {
   await post.save();
 
   await push_visit(post);
+};
+
+controller.flag = async (req, res, next) => {
+  if (!Sanitizer.isObjectId(req.params.post)) {
+    return req.respond.notFound();
+  }
+
+  let post = await Post.findById(req.params.post);
+  let reason = req.body.reason;
+
+  if (!post) {
+    return req.respond.notFound();
+  }
+
+  let reaction = await Reaction.findOne({
+    post: req.params.post,
+    account: req.token._id
+  });
+
+  if (!reaction) {
+    reaction = new Reaction({
+      account: req.token._id,
+      post: req.params.post
+    });
+  }
+
+  reaction.flagged.value = true;
+  reaction.flagged.reason = reason;
+
+  post.flagged += 1;
+
+  req.respond.ok();
+
+  await reaction.save();
+  await post.save();
 };
 
 controller.like = async (req, res, next) => {
@@ -443,9 +488,11 @@ controller.transformFavourite = async (posts, account) => {
     deleted: false
   });
 
-  return posts.map(fav => {
+  let data = posts.map(fav => {
     let reaction = reactions.find(r => r.account.toString() === account._id.toString() && r.post.toString() === fav.post._id.toString());
     let isSaved = saved.find(s => s.post.toString() === fav.post._id.toString());
+
+    if (reaction && reaction.flagged && reaction.flagged.value === true) return undefined;
 
     return {
       account: !fav.post.account ? {
@@ -458,6 +505,7 @@ controller.transformFavourite = async (posts, account) => {
         image: fav.post.account.image
       },
       title: fav.post.title,
+      flagged: fav.post.flagged,
       favorites: fav.post.favorites,
       description: fav.post.description,
       url: fav.post.url,
@@ -477,10 +525,15 @@ controller.transformFavourite = async (posts, account) => {
       _id: fav.post._id,
       reaction: reaction ? {
         liked: reaction.liked,
+        flagged: reaction.flagged ? reaction.flagged.value : undefined,
         createdAt: reaction.createdAt
       } : undefined
     };
 
+  });
+
+  return data.filter(function (result) {
+    return result !== null && result !== undefined;
   });
 };
 
@@ -494,10 +547,12 @@ controller.transform = async (posts, account, random = false) => {
     deleted: false
   });
 
-  return posts.map(post => {
+  let data = posts.map(post => {
 
     let reaction = reactions.find(r => r.account.toString() === account._id.toString() && r.post.toString() === post._id.toString());
     let isSaved = saved.find(s => s.post.toString() === post._id.toString());
+
+    if (reaction && reaction.flagged && reaction.flagged.value === true) return undefined;
 
     return {
       account: random === false ? {
@@ -511,6 +566,7 @@ controller.transform = async (posts, account, random = false) => {
       } : undefined,
       title: post.title,
       favorites: post.favorites,
+      flagged: post.flagged,
       description: post.description,
       url: post.url,
       dislikes: post.dislikes | 0,
@@ -527,10 +583,15 @@ controller.transform = async (posts, account, random = false) => {
       _id: post._id,
       reaction: reaction ? {
         liked: reaction.liked,
+        flagged: reaction.flagged ? reaction.flagged.value : undefined,
         createdAt: reaction.createdAt
       } : undefined
     };
 
+  });
+
+  return data.filter(function (result) {
+    return result !== null && result !== undefined;
   });
 };
 

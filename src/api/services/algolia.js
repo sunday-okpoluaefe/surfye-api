@@ -10,6 +10,7 @@ module.exports.push_post = async (post) => {
     account: post.account,
     likes: post.likes || 0,
     title: post.title,
+    flagged: post.flagged,
     dislikes: post.dislikes || 0,
     visits: post.visits || 0,
     description: post.description,

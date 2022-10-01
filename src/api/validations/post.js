@@ -13,6 +13,10 @@ module.exports = {
     description: Joi.string(),
     url: Joi.string()
       .required(),
-    category: Joi.objectId().required(),
+    category: Joi.objectId()
+      .required(),
+  }),
+  'post:/post/flag/:post': Joi.object({
+    reason: Joi.string().required()
   }),
 };
