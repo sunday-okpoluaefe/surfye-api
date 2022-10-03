@@ -167,6 +167,8 @@ controller.unPublishPost = async (req, res, next) => {
 
   let post = await Post.findById(id);
 
+  console.log(post)
+
   if (!post) {
     return req.respond.notFound();
   }
@@ -648,7 +650,8 @@ controller.me = async (req, res, next) => {
     count = await Post.countDocuments({ account: req.token._id });
     posts = await Post.retrieve({
       match: {
-        account: req.token._id
+        account: req.token._id,
+        status: 'publish'
       },
       limit: req.query.limit,
       skip: req.query.skip
