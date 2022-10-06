@@ -167,8 +167,6 @@ controller.unPublishPost = async (req, res, next) => {
 
   let post = await Post.findById(id);
 
-  console.log(post)
-
   if (!post) {
     return req.respond.notFound();
   }
@@ -362,7 +360,10 @@ controller.visit = async (req, res, next) => {
   }
 
   post.visits += 1;
-  req.respond.ok();
+  req.respond.ok({
+    _id: req.params.post,
+    url: post.url
+  });
   await post.save();
 
   await push_visit(post);
