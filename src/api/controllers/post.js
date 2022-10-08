@@ -499,7 +499,7 @@ controller.create_post_object = (data, saved, isOwner, reaction, account = null)
     type: data.type,
     isOwner: isOwner,
     createdAt: data.createdAt,
-    _id: data.objectID,
+    _id: data.objectID ? data.objectID : data._id,
     reaction: reaction ? {
       liked: reaction.liked,
       createdAt: reaction.createdAt
