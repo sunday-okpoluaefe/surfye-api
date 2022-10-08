@@ -29,7 +29,8 @@ controller.add = async (req, res, next) => {
 
   fav = new Favourite({
     account,
-    post
+    post,
+    type: post.type
   });
 
   await fav.save();

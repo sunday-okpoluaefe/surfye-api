@@ -6,6 +6,8 @@ const router = express.Router();
 const middlewares = require('../providers/middlewares');
 const { PostController } = require('../providers/controllers');
 
+router.post('/note', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.save_note));
+router.put('/note/:id', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.update_note));
 router.get('/random', middlewares.passport.checkAuthorization, middlewares.validateRequest, middlewares.async(PostController.random));
 //router.get('/search', middlewares.passport.checkAuthorization, middlewares.validateRequest, middlewares.async(PostController.search));
 router.get('/me', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.me));

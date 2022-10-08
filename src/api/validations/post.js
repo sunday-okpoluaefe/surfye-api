@@ -5,7 +5,7 @@ module.exports = {
     title: Joi.string()
       .required(),
     status: Joi.string()
-      .valid('draft', 'publish')
+      .valid('private', 'public')
       .required(),
     description: Joi.string(),
     url: Joi.string()
@@ -17,7 +17,7 @@ module.exports = {
     title: Joi.string()
       .required(),
     status: Joi.string()
-      .valid('draft', 'publish')
+      .valid('private', 'public')
       .required(),
     description: Joi.string(),
     url: Joi.string()
@@ -28,4 +28,22 @@ module.exports = {
   'post:/post/flag/:post': Joi.object({
     reason: Joi.string().required()
   }),
+  'post:/post/note': Joi.object({
+    title: Joi.string()
+      .required(),
+    status: Joi.string()
+      .valid('private', 'public')
+      .required(),
+    body: Joi.object()
+      .required(),
+  }),
+  'put:/post/note/:id': Joi.object({
+    title: Joi.string()
+      .required(),
+    status: Joi.string()
+      .valid('private', 'public')
+      .required(),
+    body: Joi.object()
+      .required(),
+  })
 };

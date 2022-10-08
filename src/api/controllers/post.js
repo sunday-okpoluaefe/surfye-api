@@ -5,7 +5,6 @@ const { push_likes } = require('../services/algolia');
 const { get_graph } = require('../services/url_grapher');
 const { push_visit } = require('../services/algolia');
 const { PaginateArray } = require('../helpers/pagination');
-const { search } = require('../services/algolia');
 const { push_post } = require('../services/algolia');
 const {
   Post,
@@ -53,7 +52,7 @@ controller.update = async (req, res, next) => {
   await post.save();
   req.respond.ok();
 
-  if (post.status === 'publish') {
+  if (post.status === 'public') {
     await controller.publish(post, {
       name: req.token.name,
       image: req.token.image,
@@ -115,7 +114,7 @@ controller.save = async (req, res, next) => {
     await post.save();
   }
 
-  if (post.status === 'publish') {
+  if (post.status === 'public') {
     await controller.publish(post, {
       name: req.token.name,
       image: req.token.image,
@@ -142,7 +141,7 @@ controller.publishPost = async (req, res, next) => {
   req.respond.ok();
 
   if (post.status === 'draft') {
-    post.status = 'publish';
+    post.status = 'public';
     await post.save();
     await controller.publish(post, {
       name: req.token.name,
@@ -169,7 +168,7 @@ controller.unPublishPost = async (req, res, next) => {
 
   req.respond.ok();
 
-  if (post.status === 'publish') {
+  if (post.status === 'public') {
     post.status = 'draft';
     await post.save();
     await deleteObject(post._id);
@@ -222,39 +221,26 @@ controller.random = async (req, res, next) => {
   const random = Math.floor(Math.random() * count);
   let random_posts = await Post.retrieve({
     skip: random,
-    limit: 10
+    limit: 10,
+    sort: {
+      likes: -1,
+      visits: -1
+    }
   });
 
   let transformed;
 
   if (req.token && req.token._id) {
+
     transformed = await controller.transform(random_posts, {
       _id: req.token._id,
       name: req.token.name,
       image: req.token.image
     }, true);
+
   } else {
     transformed = random_posts.map(post => {
-      return {
-        account: undefined,
-        title: post.title,
-        favorites: post.favorites,
-        description: post.description,
-        url: post.url,
-        dislikes: post.dislikes | 0,
-        likes: post.likes | 0,
-        saved: false,
-        isOwner: false,
-        category: post.category ? post.category.category : undefined,
-        graph: (post.graph !== undefined && post.graph != null) ? {
-          image: post.graph.ogImage || undefined,
-          title: post.graph.ogTitle,
-          description: post.graph.ogDescription
-        } : undefined,
-        createdAt: post.createdAt,
-        _id: post._id,
-        reaction: undefined
-      };
+      return controller.create_post_object(post, false, false, undefined);
     });
   }
 
@@ -312,6 +298,53 @@ controller.flag = async (req, res, next) => {
 
   await reaction.save();
   await post.save();
+};
+
+controller.save_note = async (req, res, next) => {
+  const {
+    title,
+    status,
+    body
+  } = req.body;
+
+  let note = new Post({
+    account: req.token._id,
+    title: title,
+    body: body,
+    status: status
+  });
+
+  await note.save();
+
+  return req.respond.ok();
+};
+
+controller.update_note = async (req, res, next) => {
+  let id = req.params.id;
+  let account = await Account.findById(req.token._id);
+  if (!account) {
+    return req.respond.unauthorized();
+  }
+
+  const {
+    title,
+    status,
+    body
+  } = req.body;
+
+  let note = await Post.findById(id);
+
+  if (!note) {
+    return req.respond.notFound();
+  }
+
+  note.title = title;
+  note.status = status;
+  note.body = body;
+
+  await note.save();
+
+  return req.respond.ok();
 };
 
 controller.like = async (req, res, next) => {
@@ -391,6 +424,25 @@ controller.dislike = async (req, res, next) => {
   await push_likes(post);
 };
 
+controller.create_note_object = (data, saved, isOwner, reaction, account = null) => {
+  return {
+    account: account | data.account,
+    title: data.title,
+    flagged: data.flagged ? data.flagged : false,
+    dislikes: data.dislikes | 0,
+    likes: data.likes | 0,
+    saved: saved,
+    type: data.type,
+    body: data.body,
+    isOwner: isOwner,
+    createdAt: data.createdAt,
+    reaction: reaction ? {
+      liked: reaction.liked,
+      createdAt: reaction.createdAt
+    } : undefined
+  };
+};
+
 controller.transformFavourite = async (posts, account) => {
   let reactions = await Reaction.find({
     account: account._id
@@ -407,47 +459,52 @@ controller.transformFavourite = async (posts, account) => {
 
     if (reaction && reaction.flagged && reaction.flagged.value === true) return undefined;
 
-    return {
-      account: !fav.post.account ? {
-        _id: account._id,
-        name: account.name,
-        image: account.image
-      } : {
+    if (fav.post.type === 'post') {
+      return controller.create_post_object(fav.post, !!isSaved, !fav.post.account
+        ? false
+        : fav.post.account._id.toString() === account._id, reaction, {
         _id: fav.post.account._id,
         name: fav.post.account.name,
         image: fav.post.account.image
-      },
-      title: fav.post.title,
-      flagged: fav.post.flagged,
-      favorites: fav.post.favorites,
-      description: fav.post.description,
-      url: fav.post.url,
-      isOwner: !fav.post.account
+      });
+    } else {
+      return controller.create_note_object(fav.post, !!isSaved, !fav.post.account
         ? false
-        : fav.post.account._id.toString() === account._id,
-      dislikes: fav.post.dislikes | 0,
-      likes: fav.post.likes | 0,
-      saved: !!isSaved,
-      category: fav.post.category.category,
-      graph: (fav.post.graph !== undefined && fav.post.graph != null) ? {
-        image: fav.post.graph.ogImage || undefined,
-        title: fav.post.graph.ogTitle,
-        description: fav.post.graph.ogDescription
-      } : undefined,
-      createdAt: fav.post.createdAt,
-      _id: fav.post._id,
-      reaction: reaction ? {
-        liked: reaction.liked,
-        flagged: reaction.flagged ? reaction.flagged.value : undefined,
-        createdAt: reaction.createdAt
-      } : undefined
-    };
+        : fav.post.account._id.toString() === account._id, reaction, {
+        _id: fav.post.account._id,
+        name: fav.post.account.name,
+        image: fav.post.account.image
+      });
+    }
 
   });
 
   return data.filter(function (result) {
     return result !== null && result !== undefined;
   });
+};
+
+controller.create_post_object = (data, saved, isOwner, reaction, account = null) => {
+  return {
+    account: account | data.account,
+    title: data.title,
+    category: data.category,
+    description: data.description,
+    url: data.url,
+    flagged: data.flagged ? data.flagged : false,
+    dislikes: data.dislikes | 0,
+    likes: data.likes | 0,
+    saved: saved,
+    graph: data.graph,
+    type: data.type,
+    isOwner: isOwner,
+    createdAt: data.createdAt,
+    _id: data.objectID,
+    reaction: reaction ? {
+      liked: reaction.liked,
+      createdAt: reaction.createdAt
+    } : undefined
+  };
 };
 
 controller.transform = async (posts, account, random = false) => {
@@ -467,40 +524,25 @@ controller.transform = async (posts, account, random = false) => {
 
     if (reaction && reaction.flagged && reaction.flagged.value === true) return undefined;
 
-    return {
-      account: random === false ? {
-        _id: account._id,
-        name: account.name,
-        image: account.image
-      } : post.account ? {
-        _id: post.account._id,
-        name: post.account.name,
-        image: post.account.image
-      } : undefined,
-      title: post.title,
-      favorites: post.favorites,
-      flagged: post.flagged,
-      description: post.description,
-      url: post.url,
-      dislikes: post.dislikes | 0,
-      likes: post.likes | 0,
-      saved: !!isSaved,
-      isOwner: post.account ? post.account._id.toString() === account._id.toString() : false,
-      category: post.category ? post.category.category : undefined,
-      graph: (post.graph !== undefined && post.graph != null) ? {
-        image: post.graph.ogImage || undefined,
-        title: post.graph.ogTitle,
-        description: post.graph.ogDescription
-      } : undefined,
-      createdAt: post.createdAt,
-      _id: post._id,
-      reaction: reaction ? {
-        liked: reaction.liked,
-        flagged: reaction.flagged ? reaction.flagged.value : undefined,
-        createdAt: reaction.createdAt
-      } : undefined
-    };
-
+    if (post.type === 'post') {
+      return controller.create_post_object(post, !!isSaved,
+        post.account
+          ? post.account._id.toString() === account._id.toString()
+          : false, reaction, {
+          _id: post.account._id,
+          name: post.account.name,
+          image: post.account.image
+        });
+    } else {
+      return controller.create_note_object(post, !!isSaved,
+        post.account
+          ? post.account._id.toString() === account._id.toString()
+          : false, reaction, {
+          _id: post.account._id,
+          name: post.account.name,
+          image: post.account.image
+        });
+    }
   });
 
   return data.filter(function (result) {
@@ -509,13 +551,17 @@ controller.transform = async (posts, account, random = false) => {
 };
 
 controller.me = async (req, res, next) => {
-  let status = req.query.status;
+  const {
+    status,
+    type
+  } = req.query;
+
   let count = 0;
   let posts = null;
   let data = null;
 
   if (status) {
-    if (status === 'draft') {
+    if (status === 'private') {
       count = await Post.countDocuments({
         account: req.token._id,
         status: status
@@ -545,7 +591,8 @@ controller.me = async (req, res, next) => {
       posts = await Favourite.retrieve({
         match: {
           account: req.token._id,
-          deleted: false
+          deleted: false,
+          type: type | 'post'
         },
         limit: req.query.limit,
         skip: req.query.skip
@@ -562,7 +609,7 @@ controller.me = async (req, res, next) => {
     posts = await Post.retrieve({
       match: {
         account: req.token._id,
-        status: 'publish'
+        status: 'public'
       },
       limit: req.query.limit,
       skip: req.query.skip

@@ -1,51 +1,10 @@
+const { PostController } = require('./post');
 const { Favourite } = require('../models/favourite');
 const { search } = require('../services/algolia');
 const {
   Reaction,
 } = require('../models/reaction');
 const controller = {};
-
-controller.create_post = (data, saved, isOwner, reaction) => {
-  return {
-    account: data.account,
-    title: data.title,
-    category: data.category,
-    description: data.description,
-    url: data.url,
-    flagged: data.flagged ? data.flagged : false,
-    dislikes: data.dislikes | 0,
-    likes: data.likes | 0,
-    saved: saved,
-    graph: data.graph,
-    type: data.type,
-    isOwner: isOwner,
-    createdAt: data.createdAt,
-    _id: data.objectID,
-    reaction: reaction ? {
-      liked: reaction.liked,
-      createdAt: reaction.createdAt
-    } : undefined
-  };
-};
-
-controller.create_note = (data, saved, isOwner, reaction) => {
-  return {
-    account: data.account,
-    title: data.title,
-    flagged: data.flagged ? d.flagged : false,
-    dislikes: data.dislikes | 0,
-    likes: data.likes | 0,
-    saved: saved,
-    type: data.type,
-    body: data.body,
-    isOwner: isOwner,
-    createdAt: data.createdAt,
-    reaction: reaction ? {
-      liked: reaction.liked,
-      createdAt: reaction.createdAt
-    } : undefined
-  };
-};
 
 controller.search = async (req, res, next) => {
   let skip = req.query.skip ? req.query.skip - 1 : 0;
@@ -78,17 +37,17 @@ controller.search = async (req, res, next) => {
       let acct = d.account._id ? d.account._id.toString() : '';
 
       if (d.type === 'post') {
-        return controller.create_post(d, isSaved, acct === req.token._id.toString(), reaction);
+        return PostController.create_post_object(d, isSaved, acct === req.token._id.toString(), reaction);
       } else {
-        return controller.create_note(d, isSaved, acct === req.token._id.toString(), reaction);
+        return PostController.create_note_object(d, isSaved, acct === req.token._id.toString(), reaction);
       }
     });
   } else {
     hits = result.hits.map(d => {
       if (d.type === 'post') {
-        return controller.create_post(d, false, false, undefined);
+        return PostController.create_post_object(d, false, false, undefined);
       } else {
-        return controller.create_note(d, false, false, undefined);
+        return PostController.create_note_object(d, false, false, undefined);
       }
     });
   }
@@ -96,8 +55,6 @@ controller.search = async (req, res, next) => {
   hits = hits.filter(function (result) {
     return result !== null && result !== undefined;
   });
-
-  console.log(result)
 
   return req.respond.ok({
     docs: hits,

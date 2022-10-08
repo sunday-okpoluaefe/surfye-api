@@ -17,5 +17,6 @@ module.exports.FavouriteSchema = new mongoose.Schema({
   deleted: {
     type: Boolean,
     default: false
-  }
+  },
+  type: { type: String }
 }, { timestamps: true });

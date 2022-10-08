@@ -39,8 +39,8 @@ module.exports.PostSchema = new mongoose.Schema({
   description: { type: String },
   status: {
     type: String,
-    enum: ['draft', 'publish'],
-    default: 'draft'
+    enum: ['private', 'public'],
+    default: 'private'
   },
   url: {
     type: String,
@@ -49,4 +49,5 @@ module.exports.PostSchema = new mongoose.Schema({
     lowercase: true
   },
   graph: { type: Object },
+  body: { type: Object },
 }, { timestamps: true });

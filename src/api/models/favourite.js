@@ -18,9 +18,10 @@ FavouriteSchema.statics.retrieve = function (data) {
         select: '_id name image'
       }],
     })
-    .sort({ _id: -1 })
+    .sort((data.sort) ? data.sort : { _id: -1 })
     .limit(parseInt(data.limit) || 10)
     .skip(parseInt(data.skip) || 0);
-};
+}
+;
 
 module.exports.Favourite = Model.create('Favourite', FavouriteSchema);
