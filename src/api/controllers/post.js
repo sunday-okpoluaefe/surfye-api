@@ -29,7 +29,6 @@ controller.update = async (req, res, next) => {
     title,
     url,
     description,
-    type,
     status,
     category
   } = req.body;
@@ -44,7 +43,6 @@ controller.update = async (req, res, next) => {
   post.url = url;
   post.status = status;
   post.description = description;
-  post.type = type;
   post.category = category;
 
   let graph = await get_graph(post.url);
@@ -69,7 +67,6 @@ controller.save = async (req, res, next) => {
     title,
     url,
     description,
-    type,
     status,
     category
   } = req.body;
@@ -105,7 +102,6 @@ controller.save = async (req, res, next) => {
     url: url,
     status: status,
     description: description,
-    type: type,
     account: req.token._id,
     category
   });
@@ -188,6 +184,7 @@ controller.publish = async (post, account) => {
     title: post.title,
     dislikes: post.dislikes,
     likes: post.likes,
+    type: post.type,
     flagged: post.flagged,
     favorites: post.favorites,
     description: post.description,
@@ -218,95 +215,6 @@ controller.one = async (req, res, next) => {
   } else {
     return req.respond.notFound();
   }
-};
-
-controller.search = async (req, res, next) => {
-  let skip = req.query.skip ? req.query.skip - 1 : 0;
-  let result = await search({
-    query: req.query.query,
-    filters: req.query.filters,
-    page: skip,
-    limit: req.query.limit || 10
-  });
-
-  let reactions = null;
-  let hits;
-
-  if (req.token && req.token._id) {
-    reactions = await Reaction.find({
-      account: req.token._id
-    });
-
-    let saved = await Favourite.find({
-      account: req.token._id,
-      deleted: false
-    });
-
-    hits = result.hits.map(d => {
-      let reaction = reactions.find(r => r.account.toString() === req.token._id.toString() && r.post.toString() === d.objectID.toString());
-      let isSaved = saved.find(s => s.post.toString() === d.objectID.toString());
-
-      if (reaction && reaction.flagged && reaction.flagged.value === true) return undefined;
-
-      let acct = d.account._id ? d.account._id.toString() : '';
-
-      return {
-        account: d.account,
-        title: d.title,
-        favorites: d.favorites,
-        category: d.category,
-        description: d.description,
-        url: d.url,
-        flagged: d.flagged ? d.flagged : false,
-        dislikes: d.dislikes | 0,
-        likes: d.likes | 0,
-        saved: !!isSaved,
-        graph: d.graph,
-        isOwner: acct === req.token._id.toString(),
-        createdAt: d.createdAt,
-        _id: d.objectID,
-        reaction: reaction ? {
-          liked: reaction.liked,
-          createdAt: reaction.createdAt
-        } : undefined
-      };
-    });
-  } else {
-    hits = result.hits.map(d => {
-      return {
-        account: d.account,
-        title: d.title,
-        category: d.category,
-        favorites: d.favorites,
-        description: d.description,
-        url: d.url,
-        flagged: d.flagged ? d.flagged : false,
-        isOwner: false,
-        graph: d.graph,
-        dislikes: d.dislikes | 0,
-        likes: d.likes | 0,
-        createdAt: d.createdAt,
-        saved: false,
-        _id: d.objectID
-      };
-    });
-  }
-
-  hits = hits.filter(function (result) {
-    return result !== null && result !== undefined;
-  });
-
-  return req.respond.ok({
-    docs: hits,
-    page: result.page,
-    limit: result.hitsPerPage,
-    totalDocs: result.hits.length,
-    prevPage: (result.page - 1) < 0 ? null : true,
-    nextPage: (result.hits.length > (result.hitsPerPage * result.page)) ? result.page + 1 : null,
-    hasNextPage: result.hits.length > (result.hitsPerPage * result.page),
-    hasPrevPage: result.page > 1
-  });
-
 };
 
 controller.random = async (req, res, next) => {
@@ -360,10 +268,12 @@ controller.visit = async (req, res, next) => {
   }
 
   post.visits += 1;
+
   req.respond.ok({
     _id: req.params.post,
     url: post.url
   });
+
   await post.save();
 
   await push_visit(post);

@@ -7,7 +7,7 @@ const middlewares = require('../providers/middlewares');
 const { PostController } = require('../providers/controllers');
 
 router.get('/random', middlewares.passport.checkAuthorization, middlewares.validateRequest, middlewares.async(PostController.random));
-router.get('/search', middlewares.passport.checkAuthorization, middlewares.validateRequest, middlewares.async(PostController.search));
+//router.get('/search', middlewares.passport.checkAuthorization, middlewares.validateRequest, middlewares.async(PostController.search));
 router.get('/me', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.me));
 router.post('/like/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.like));
 router.post('/flag/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.flag));

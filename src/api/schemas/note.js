@@ -3,23 +3,13 @@
  */
 const mongoose = require('mongoose');
 
-module.exports.PostSchema = new mongoose.Schema({
+module.exports.NoteSchema = new mongoose.Schema({
   account: {
     type: mongoose.Schema.Types.ObjectId,
     index: true,
     ref: 'Account'
   },
-  category: {
-    type: mongoose.Schema.Types.ObjectId,
-    index: true,
-    ref: 'Category'
-  },
   title: { type: String },
-  type: {
-    type: String,
-    enum: ['post'],
-    default: 'post'
-  },
   visits: {
     type: Number,
     default: 0
@@ -36,17 +26,15 @@ module.exports.PostSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  description: { type: String },
+  type: {
+    type: String,
+    enum: ['note'],
+    default: 'note'
+  },
   status: {
     type: String,
-    enum: ['draft', 'publish'],
-    default: 'draft'
+    enum: ['private', 'public'],
+    default: 'private'
   },
-  url: {
-    type: String,
-    required: true,
-    trim: true,
-    lowercase: true
-  },
-  graph: { type: Object },
+  body: { type: Object },
 }, { timestamps: true });

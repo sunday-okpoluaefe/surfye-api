@@ -8,9 +8,10 @@ module.exports.push_post = async (post) => {
   let data = {
     objectID: post._id.toString(),
     account: post.account,
-    likes: post.likes || 0,
     title: post.title,
     flagged: post.flagged,
+    type: post.type,
+    likes: post.likes || 0,
     dislikes: post.dislikes || 0,
     visits: post.visits || 0,
     description: post.description,
@@ -26,6 +27,26 @@ module.exports.push_post = async (post) => {
     throw(error);
   }
 };
+
+module.exports.push_note = async (note) => {
+  let data = {
+    objectID: note._id.toString(),
+    account: note.account,
+    title: note.title,
+    flagged: note.flagged,
+    type: note.type,
+    likes: note.likes || 0,
+    dislikes: note.dislikes || 0,
+    visits: note.visits || 0,
+    body: note.body
+  }
+
+  try {
+    await search_index.saveObject(data);
+  } catch (error) {
+    throw(error);
+  }
+}
 
 module.exports.push_visit = async (post) => {
   let data = {
