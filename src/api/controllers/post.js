@@ -426,7 +426,7 @@ controller.dislike = async (req, res, next) => {
 
 controller.create_note_object = (data, saved, isOwner, reaction, account = null) => {
   return {
-    account: account | data.account,
+    account: account ? account : data.account,
     title: data.title,
     flagged: data.flagged ? data.flagged : false,
     dislikes: data.dislikes | 0,
@@ -486,7 +486,7 @@ controller.transformFavourite = async (posts, account) => {
 
 controller.create_post_object = (data, saved, isOwner, reaction, account = null) => {
   return {
-    account: account | data.account,
+    account: account ? account : data.account,
     title: data.title,
     category: data.category,
     description: data.description,
@@ -592,7 +592,7 @@ controller.me = async (req, res, next) => {
         match: {
           account: req.token._id,
           deleted: false,
-          type: type | 'post'
+          type: type ? type : 'post'
         },
         limit: req.query.limit,
         skip: req.query.skip
