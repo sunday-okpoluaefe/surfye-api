@@ -176,7 +176,7 @@ controller.publishPost = async (req, res, next) => {
 
   req.respond.ok();
 
-  if (post.status === 'draft') {
+  if (post.status === 'private') {
     post.status = 'public';
     await post.save();
     await controller.publish(post, {
@@ -205,7 +205,7 @@ controller.unPublishPost = async (req, res, next) => {
   req.respond.ok();
 
   if (post.status === 'public') {
-    post.status = 'draft';
+    post.status = 'private';
     await post.save();
     await deleteObject(post._id);
   }
