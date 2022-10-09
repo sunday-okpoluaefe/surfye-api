@@ -8,7 +8,7 @@ module.exports = {
       .valid('private', 'public')
       .required(),
     description: Joi.string(),
-    url: Joi.string()
+    url: Joi.string().uri()
       .required(),
     category: Joi.objectId()
       .required(),
@@ -20,7 +20,7 @@ module.exports = {
       .valid('private', 'public')
       .required(),
     description: Joi.string(),
-    url: Joi.string()
+    url: Joi.string().uri()
       .required(),
     category: Joi.objectId()
       .required(),

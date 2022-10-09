@@ -16,6 +16,41 @@ const { SetErrorData } = require('../helpers/set-error-data');
 
 const controller = {};
 
+controller.crawl = async (req, res, next) => {
+  const {
+    title,
+    description,
+    url
+  } = req.body;
+
+  let post = await Post.findOne({
+    url: url,
+    title: title,
+    description: description
+  });
+
+  if (post) {
+    return req.respond.ok();
+  }
+
+  let category = await Category.findOne({
+    category: 'General'
+  });
+
+  if (!category) {
+    return req.respond.internalError();
+  }
+
+  post = new Post({
+    title: title,
+    category: category._id,
+    description: description,
+    url: url,
+    status: 'public',
+  });
+
+};
+
 controller.update = async (req, res, next) => {
   let id = req.params.id;
   let account = await Account.findById(req.token._id);
@@ -100,6 +135,7 @@ controller.save = async (req, res, next) => {
     title: title,
     url: url,
     status: status,
+    type: 'post',
     description: description,
     account: req.token._id,
     category
@@ -311,6 +347,7 @@ controller.save_note = async (req, res, next) => {
     account: req.token._id,
     title: title,
     body: body,
+    type: 'note',
     status: status
   });
 
@@ -570,7 +607,8 @@ controller.me = async (req, res, next) => {
       posts = await Post.retrieve({
         match: {
           account: req.token._id,
-          status: status
+          status: status,
+          type: type ? type : 'post'
         },
         limit: req.query.limit,
         skip: req.query.skip
@@ -604,22 +642,28 @@ controller.me = async (req, res, next) => {
         image: req.token.image
       });
     }
-  } else {
-    count = await Post.countDocuments({ account: req.token._id });
-    posts = await Post.retrieve({
-      match: {
-        account: req.token._id,
-        status: 'public'
-      },
-      limit: req.query.limit,
-      skip: req.query.skip
-    });
 
-    data = await controller.transform(posts, {
-      _id: req.token._id,
-      name: req.token.name,
-      image: req.token.image
-    });
+  }
+
+  if (!data) {
+    {
+      count = await Post.countDocuments({ account: req.token._id });
+      posts = await Post.retrieve({
+        match: {
+          account: req.token._id,
+          status: 'public',
+          type: 'post'
+        },
+        limit: req.query.limit,
+        skip: req.query.skip
+      });
+
+      data = await controller.transform(posts, {
+        _id: req.token._id,
+        name: req.token.name,
+        image: req.token.image
+      });
+    }
   }
 
   return req.respond.ok(PaginateArray(data, count, req.query.skip, req.query.limit));
