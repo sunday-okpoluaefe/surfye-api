@@ -601,7 +601,8 @@ controller.me = async (req, res, next) => {
     if (status === 'private') {
       count = await Post.countDocuments({
         account: req.token._id,
-        status: status
+        status: status,
+        type: type ? type : 'post'
       });
 
       posts = await Post.retrieve({
@@ -641,18 +642,19 @@ controller.me = async (req, res, next) => {
         name: req.token.name,
         image: req.token.image
       });
-    }
+    } else if (status === 'public') {
 
-  }
+      count = await Post.countDocuments({
+        account: req.token._id,
+        status: 'public',
+        type: type ? type : 'post'
+      });
 
-  if (!data) {
-    {
-      count = await Post.countDocuments({ account: req.token._id });
       posts = await Post.retrieve({
         match: {
           account: req.token._id,
           status: 'public',
-          type: 'post'
+          type: type ? type : 'post'
         },
         limit: req.query.limit,
         skip: req.query.skip
@@ -666,7 +668,7 @@ controller.me = async (req, res, next) => {
     }
   }
 
-  return req.respond.ok(PaginateArray(data, count, req.query.skip, req.query.limit));
+  return req.respond.ok(PaginateArray(data ? data : [], count | 0, req.query.skip, req.query.limit));
 };
 
 controller.all = async (req, res, next) => {
