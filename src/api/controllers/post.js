@@ -6,12 +6,14 @@ const { get_graph } = require('../services/url_grapher');
 const { push_visit } = require('../services/algolia');
 const { PaginateArray } = require('../helpers/pagination');
 const { push_post } = require('../services/algolia');
+
 const {
   Post,
   Category,
   Reaction,
   Favourite
 } = require('../providers/models');
+
 const { SetErrorData } = require('../helpers/set-error-data');
 
 const controller = {};

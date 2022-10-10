@@ -1,11 +1,14 @@
-require('dotenv').config();
+require('dotenv')
+  .config();
 const config = require('config');
+const cron = require('node-cron');
 const express = require('express');
 const path = require('path');
 const swaggerUI = require('swagger-ui-express');
 const yaml = require('yamljs');
 const redoc = require('redoc-express');
 const cors = require('cors');
+const fs = require('fs');
 
 const swaggerDocs = yaml.load('./docs.yaml');
 
@@ -70,6 +73,23 @@ app.use(middlewares.error.notFound); // attach error middleware to catch 404 err
 
 http.listen(port, () => {
 
+});
+
+// cron job delete log files every hour
+cron.schedule('0 0 * * * *', () => {
+  fs.access('./error.log', fs.constants.R_OK | fs.constants.W_OK, (err) => {
+    if (!err) {
+      fs.unlink('./error.log', function (err) {
+      });
+    }
+  });
+
+  fs.access('./combined.log', fs.constants.R_OK | fs.constants.W_OK, (err) => {
+    if (!err) {
+      fs.unlink('./combined.log', function (err) {
+      });
+    }
+  });
 });
 
 module.exports = app;
