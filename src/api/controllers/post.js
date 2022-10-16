@@ -480,6 +480,7 @@ controller.create_note_object = (data, saved, isOwner, reaction, account = null)
   return {
     account: account ? account : data.account,
     title: data.title,
+    _id: data._id,
     flagged: data.flagged ? data.flagged : false,
     dislikes: data.dislikes | 0,
     likes: data.likes | 0,
