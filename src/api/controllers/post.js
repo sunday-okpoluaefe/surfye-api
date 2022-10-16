@@ -1,4 +1,3 @@
-import { push_note } from '../services/algolia';
 
 const { Sanitizer } = require('../helpers/sanitizer');
 const { Account } = require('../models/account');
@@ -6,6 +5,7 @@ const { deleteObject } = require('../services/algolia');
 const { push_likes } = require('../services/algolia');
 const { get_graph } = require('../services/url_grapher');
 const { push_visit } = require('../services/algolia');
+const { push_note } = require('../services/algolia');
 const { PaginateArray } = require('../helpers/pagination');
 const { push_post } = require('../services/algolia');
 
