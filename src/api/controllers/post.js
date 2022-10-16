@@ -1,4 +1,3 @@
-
 const { Sanitizer } = require('../helpers/sanitizer');
 const { Account } = require('../models/account');
 const { deleteObject } = require('../services/algolia');
@@ -549,11 +548,11 @@ controller.create_post_object = (data, saved, isOwner, reaction, account = null)
     dislikes: data.dislikes | 0,
     likes: data.likes | 0,
     saved: saved,
-    graph: {
+    graph: data.graph ? {
       image: (data.graph.ogImage !== null && data.graph.ogImage !== undefined) ? data.graph.ogImage : data.graph.image,
       title: (data.graph.ogTitle !== null && data.graph.ogTitle !== undefined) ? data.graph.ogTitle : data.graph.title,
       description: (data.graph.ogDescription !== null && data.graph.ogDescription !== undefined) ? data.graph.ogDescription : data.graph.description
-    },
+    } : {},
     type: data.type,
     isOwner: isOwner,
     createdAt: data.createdAt,
