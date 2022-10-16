@@ -36,7 +36,7 @@ module.exports = {
     status: Joi.string()
       .valid('private', 'public')
       .required(),
-    body: Joi.object()
+    body: Joi.string()
       .required(),
   }),
   'put:/post/note/:id': Joi.object({
