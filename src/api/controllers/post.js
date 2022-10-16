@@ -1,3 +1,5 @@
+import { push_note } from '../services/algolia';
+
 const { Sanitizer } = require('../helpers/sanitizer');
 const { Account } = require('../models/account');
 const { deleteObject } = require('../services/algolia');
@@ -342,7 +344,8 @@ controller.save_note = async (req, res, next) => {
   const {
     title,
     status,
-    body
+    body,
+    color
   } = req.body;
 
   let note = new Post({
@@ -350,12 +353,17 @@ controller.save_note = async (req, res, next) => {
     title: title,
     body: body,
     type: 'note',
+    color: color,
     status: status
   });
 
   await note.save();
 
-  return req.respond.ok();
+  req.respond.ok();
+
+  if (status === 'public') {
+    await push_note(note);
+  }
 };
 
 controller.update_note = async (req, res, next) => {
@@ -368,7 +376,8 @@ controller.update_note = async (req, res, next) => {
   const {
     title,
     status,
-    body
+    body,
+    color
   } = req.body;
 
   let note = await Post.findById(id);
@@ -380,10 +389,15 @@ controller.update_note = async (req, res, next) => {
   note.title = title;
   note.status = status;
   note.body = body;
+  note.color = color;
 
   await note.save();
 
-  return req.respond.ok();
+  req.respond.ok();
+
+  if (status === 'public') {
+    await push_note(note);
+  }
 };
 
 controller.like = async (req, res, next) => {
@@ -473,6 +487,7 @@ controller.create_note_object = (data, saved, isOwner, reaction, account = null)
     saved: saved,
     type: data.type,
     body: data.body,
+    color: data.color,
     isOwner: isOwner,
     createdAt: data.createdAt,
     reaction: reaction ? {

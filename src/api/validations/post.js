@@ -31,6 +31,8 @@ module.exports = {
   'post:/post/note': Joi.object({
     title: Joi.string()
       .required(),
+    color: Joi.string()
+      .required(),
     status: Joi.string()
       .valid('private', 'public')
       .required(),
@@ -40,10 +42,12 @@ module.exports = {
   'put:/post/note/:id': Joi.object({
     title: Joi.string()
       .required(),
+    color: Joi.string()
+      .required(),
     status: Joi.string()
       .valid('private', 'public')
       .required(),
-    body: Joi.object()
+    body: Joi.string()
       .required(),
   })
 };
