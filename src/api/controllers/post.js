@@ -632,7 +632,8 @@ controller.me = async (req, res, next) => {
           type: type ? type : 'post'
         },
         limit: req.query.limit,
-        skip: req.query.skip
+        skip: req.query.skip,
+        sort: { visits: -1 }
       });
 
       data = await controller.transform(posts, {
@@ -654,7 +655,8 @@ controller.me = async (req, res, next) => {
           type: type ? type : 'post'
         },
         limit: req.query.limit,
-        skip: req.query.skip
+        skip: req.query.skip,
+        sort: { visits: -1 }
       });
 
       data = await controller.transformFavourite(posts, {
@@ -677,7 +679,8 @@ controller.me = async (req, res, next) => {
           type: type ? type : 'post'
         },
         limit: req.query.limit,
-        skip: req.query.skip
+        skip: req.query.skip,
+        sort: { visits: -1 }
       });
 
       data = await controller.transform(posts, {
