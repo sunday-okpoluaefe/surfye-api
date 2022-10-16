@@ -17,7 +17,7 @@ module.exports.PostSchema = new mongoose.Schema({
   title: { type: String },
   type: {
     type: String,
-    enum: ['post'],
+    enum: ['post', 'note'],
     default: 'post'
   },
   visits: {
@@ -45,7 +45,6 @@ module.exports.PostSchema = new mongoose.Schema({
   color: { type: String },
   url: {
     type: String,
-    required: true,
     trim: true,
     lowercase: true
   },
