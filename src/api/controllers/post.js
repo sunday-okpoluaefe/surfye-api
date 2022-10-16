@@ -534,7 +534,11 @@ controller.create_post_object = (data, saved, isOwner, reaction, account = null)
     dislikes: data.dislikes | 0,
     likes: data.likes | 0,
     saved: saved,
-    graph: data.graph,
+    graph: {
+      image: data.graph.ogImage ? data.graph.ogImage : data.graph.image,
+      title: data.graph.ogTitle ? data.graph.ogTitle : data.graph.title,
+      description: data.graph.ogDescription ? data.graph.ogDescription : data.graph.description
+    },
     type: data.type,
     isOwner: isOwner,
     createdAt: data.createdAt,
