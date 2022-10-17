@@ -55,7 +55,6 @@ controller.crawl = async (req, res, next) => {
 };
 
 controller.update = async (req, res, next) => {
-  let id = req.params.id;
   let account = await Account.findById(req.token._id);
 
   if (!account) {
@@ -70,10 +69,14 @@ controller.update = async (req, res, next) => {
     category
   } = req.body;
 
-  let post = await Post.findById(id);
+  let post = await Post.findById(req.params.id);
 
   if (!post) {
     return req.respond.notFound();
+  }
+
+  if (post.account.toString() !== req.token._id.toString()) {
+    return req.respond.forbidden();
   }
 
   post.title = title;
@@ -177,6 +180,10 @@ controller.publishPost = async (req, res, next) => {
     return req.respond.notFound();
   }
 
+  if (post.account.toString() !== req.token._id.toString()) {
+    return req.respond.forbidden();
+  }
+
   req.respond.ok();
 
   if (post.status === 'private') {
@@ -203,6 +210,10 @@ controller.unPublishPost = async (req, res, next) => {
 
   if (!post) {
     return req.respond.notFound();
+  }
+
+  if (post.account.toString() !== req.token._id.toString()) {
+    return req.respond.forbidden();
   }
 
   req.respond.ok();
@@ -383,6 +394,10 @@ controller.update_note = async (req, res, next) => {
 
   if (!note) {
     return req.respond.notFound();
+  }
+
+  if (note.account.toString() !== req.token._id.toString()) {
+    return req.respond.forbidden();
   }
 
   note.title = title;
