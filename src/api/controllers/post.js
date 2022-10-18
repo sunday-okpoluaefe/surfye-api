@@ -253,14 +253,21 @@ controller.one = async (req, res, next) => {
   let post = await Post.retrieveById(id);
 
   if (post) {
+    if (req.token && req.token._id) {
+      let data = await controller.transform([post], {
+        _id: req.token._id,
+        name: req.token.name,
+        image: req.token.image
+      });
 
-    let data = await controller.transform([post], {
-      _id: req.token._id,
-      name: req.token.name,
-      image: req.token.image
-    });
-
-    return req.respond.ok(data[0]);
+      return req.respond.ok(data[0]);
+    } else {
+      if (post.type === 'post') {
+        return req.respond.ok(controller.create_post_object(post, false, false, undefined));
+      } else {
+        return req.respond.ok(controller.create_note_object(post, false, false, undefined));
+      }
+    }
   } else {
     return req.respond.notFound();
   }
