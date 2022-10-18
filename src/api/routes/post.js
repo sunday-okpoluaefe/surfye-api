@@ -19,7 +19,7 @@ router.post('/publish/:post', middlewares.passport.authenticate, middlewares.val
 router.delete('/publish/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.unPublishPost));
 
 router.post('/', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.save));
-router.get('/:id', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.one));
+router.get('/:id', middlewares.passport.checkAuthorization, middlewares.validateRequest, middlewares.async(PostController.one));
 router.put('/:id', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.update));
 
 module.exports.PostRoutes = router;
