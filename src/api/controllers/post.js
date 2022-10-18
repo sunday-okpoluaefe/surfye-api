@@ -379,13 +379,21 @@ controller.save_note = async (req, res, next) => {
   req.respond.ok();
 
   if (status === 'public') {
-    await push_note(note);
+    await push_note({
+      note: note,
+      account: {
+        _id: req.token._id,
+        image: req.token.image,
+        name: req.token.name
+      }
+    });
   }
 };
 
 controller.update_note = async (req, res, next) => {
   let id = req.params.id;
   let account = await Account.findById(req.token._id);
+
   if (!account) {
     return req.respond.unauthorized();
   }
@@ -417,7 +425,14 @@ controller.update_note = async (req, res, next) => {
   req.respond.ok();
 
   if (status === 'public') {
-    await push_note(note);
+    await push_note({
+      note: note,
+      account: {
+        _id: req.token._id,
+        image: req.token.image,
+        name: req.token.name
+      }
+    });
   }
 };
 

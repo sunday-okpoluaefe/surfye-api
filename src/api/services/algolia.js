@@ -28,10 +28,12 @@ module.exports.push_post = async (post) => {
   }
 };
 
-module.exports.push_note = async (note) => {
+module.exports.push_note = async (payload) => {
+  const { note, account } = payload;
+
   let data = {
     objectID: note._id.toString(),
-    account: note.account,
+    account: account,
     title: note.title,
     flagged: note.flagged,
     type: note.type,
@@ -40,14 +42,14 @@ module.exports.push_note = async (note) => {
     dislikes: note.dislikes || 0,
     visits: note.visits || 0,
     body: note.body
-  }
+  };
 
   try {
     await search_index.saveObject(data);
   } catch (error) {
     throw(error);
   }
-}
+};
 
 module.exports.push_visit = async (post) => {
   let data = {
