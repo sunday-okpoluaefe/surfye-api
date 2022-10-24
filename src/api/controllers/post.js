@@ -1,3 +1,4 @@
+const { CustomPaginate } = require('../helpers/pagination');
 const { Sanitizer } = require('../helpers/sanitizer');
 const { Account } = require('../models/account');
 const { deleteObject } = require('../services/algolia');
@@ -729,10 +730,11 @@ controller.me = async (req, res, next) => {
         name: req.token.name,
         image: req.token.image
       });
+
     }
   }
 
-  return req.respond.ok(PaginateArray(data ? data : [], count | 0, req.query.skip, req.query.limit));
+  return req.respond.ok(CustomPaginate(data ? data : [], count || 0, req.query.skip, req.query.limit));
 };
 
 controller.all = async (req, res, next) => {

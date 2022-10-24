@@ -10,7 +10,7 @@ controller.search = async (req, res, next) => {
   let result = await search({
     query: req.query.query,
     filters: req.query.filters,
-    page: req.query.skip | 0,
+    page: req.query.skip | 1,
     limit: req.query.limit || 10
   });
 

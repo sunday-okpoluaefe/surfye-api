@@ -56,18 +56,13 @@ module.exports.CustomPaginate = (items, count, currentPage, perPageItems) => {
   return {
     docs: items,
     totalDocs: count,
-    // eslint-disable-next-line radix
     page: parseInt(page),
-    // eslint-disable-next-line radix
     limit: parseInt(perPage),
-    // eslint-disable-next-line radix
-    prevPage: page ? parseInt(currentPage) : null,
-    // eslint-disable-next-line radix
-    nextPage: (totalPages > page) ? parseInt(page) + 1 : null,
-    // eslint-disable-next-line radix
+    prevPage: page > 0 ? page - 1 : null,
+    nextPage: (totalPages > (page + 1)) ? parseInt(page) + 1 : null,
     pagingCounter: (parseInt(perPage) * parseInt(page)),
     totalPages,
-    hasPrevPage: !!(page),
-    hasNextPage: (totalPages > page),
+    hasPrevPage: page > 0,
+    hasNextPage: (totalPages > (page)),
   };
 };
