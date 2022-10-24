@@ -60,10 +60,10 @@ controller.search = async (req, res, next) => {
     docs: hits,
     page: result.page,
     limit: result.hitsPerPage,
-    totalDocs: result.hits.length,
+    totalDocs: result.nbHits,
     prevPage: (result.page - 1) < 0 ? null : true,
-    nextPage: (result.hits.length > (result.hitsPerPage * result.page)) ? result.page + 1 : null,
-    hasNextPage: result.hits.length > (result.hitsPerPage * result.ngPages),
+    nextPage: (result.nbHits > (result.hitsPerPage * result.page)) ? result.page + 1 : null,
+    hasNextPage: result.nbHits > (result.hitsPerPage * result.page),
     hasPrevPage: result.page > 1
   });
 
