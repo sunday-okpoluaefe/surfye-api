@@ -277,6 +277,9 @@ controller.random = async (req, res, next) => {
   let count = await Post.countDocuments();
   const random = Math.floor(Math.random() * count);
   let random_posts = await Post.retrieve({
+    match: {
+      status: 'public'
+    },
     skip: random,
     limit: 10,
     sort: {
