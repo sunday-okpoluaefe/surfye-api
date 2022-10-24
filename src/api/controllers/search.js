@@ -7,11 +7,10 @@ const {
 const controller = {};
 
 controller.search = async (req, res, next) => {
-  let skip = req.query.skip ? req.query.skip - 1 : 0;
   let result = await search({
     query: req.query.query,
     filters: req.query.filters,
-    page: skip,
+    page: req.query.skip | 0,
     limit: req.query.limit || 10
   });
 
@@ -60,11 +59,12 @@ controller.search = async (req, res, next) => {
     docs: hits,
     page: result.page,
     limit: result.hitsPerPage,
+    totalPages: result.nbPages,
     totalDocs: result.nbHits,
-    prevPage: (result.page - 1) < 0 ? null : true,
-    nextPage: (result.nbHits > (result.hitsPerPage * result.page)) ? result.page + 1 : null,
-    hasNextPage: result.nbHits > (result.hitsPerPage * result.page),
-    hasPrevPage: result.page > 1
+    prevPage: (result.page > 0) ? result.page - 1 : null,
+    nextPage: result.nbPages > (result.page + 1) ? result.page + 1 : null,
+    hasNextPage: result.nbPages > (result.page + 1),
+    hasPrevPage: result.page > 0
   });
 
 };
