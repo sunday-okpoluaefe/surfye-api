@@ -690,7 +690,7 @@ controller.me = async (req, res, next) => {
       count = await Post.countDocuments({
         account: req.token._id,
         status: status,
-        deleted: false,
+        $or: [{ deleted: false }, { deleted: undefined }, { deleted: null }],
         type: type ? type : 'post'
       });
 
@@ -698,7 +698,7 @@ controller.me = async (req, res, next) => {
         match: {
           account: req.token._id,
           status: status,
-          deleted: false,
+          $or: [{ deleted: false }, { deleted: undefined }, { deleted: null }],
           type: type ? type : 'post'
         },
         limit: req.query.limit,
@@ -739,7 +739,7 @@ controller.me = async (req, res, next) => {
       count = await Post.countDocuments({
         account: req.token._id,
         status: 'public',
-        deleted: false,
+        $or: [{ deleted: false }, { deleted: undefined }, { deleted: null }],
         type: type ? type : 'post'
       });
 
@@ -747,7 +747,7 @@ controller.me = async (req, res, next) => {
         match: {
           account: req.token._id,
           status: 'public',
-          deleted: false,
+          $or: [{ deleted: false }, { deleted: undefined }, { deleted: null }],
           type: type ? type : 'post'
         },
         limit: req.query.limit,
