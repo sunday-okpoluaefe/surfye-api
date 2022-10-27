@@ -38,6 +38,8 @@ module.exports = {
       .required(),
     body: Joi.string()
       .required(),
+    raw: Joi.string()
+      .required(),
   }),
   'put:/post/note/:id': Joi.object({
     title: Joi.string()

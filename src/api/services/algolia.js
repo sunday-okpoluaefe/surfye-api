@@ -37,6 +37,7 @@ module.exports.push_note = async (payload) => {
     title: note.title,
     flagged: note.flagged,
     type: note.type,
+    raw: note.raw,
     color: note.color,
     likes: note.likes || 0,
     dislikes: note.dislikes || 0,

@@ -239,11 +239,7 @@ controller.publish = async (post, account) => {
     favorites: post.favorites,
     description: post.description,
     url: post.url,
-    graph: post.graph !== null ? {
-      image: post.graph.ogImage,
-      title: post.graph.ogTitle,
-      description: post.graph.ogDescription
-    } : undefined,
+    graph: post.graph !== null ? post.graph : undefined,
     createdAt: post.createdAt,
     category: category.category
   });
@@ -366,7 +362,8 @@ controller.save_note = async (req, res, next) => {
     title,
     status,
     body,
-    color
+    color,
+    raw
   } = req.body;
 
   let note = new Post({
@@ -375,6 +372,7 @@ controller.save_note = async (req, res, next) => {
     body: body,
     type: 'note',
     color: color,
+    raw: raw,
     status: status
   });
 
@@ -406,7 +404,8 @@ controller.update_note = async (req, res, next) => {
     title,
     status,
     body,
-    color
+    color,
+    raw
   } = req.body;
 
   let note = await Post.findById(id);
@@ -422,6 +421,7 @@ controller.update_note = async (req, res, next) => {
   note.title = title;
   note.status = status;
   note.body = body;
+  note.raw = raw;
   note.color = color;
 
   await note.save();
@@ -527,6 +527,7 @@ controller.create_note_object = (data, saved, isOwner, reaction, account = null)
     likes: data.likes | 0,
     saved: saved,
     type: data.type,
+    raw: data.raw,
     body: data.body,
     color: data.color,
     isOwner: isOwner,
@@ -590,11 +591,7 @@ controller.create_post_object = (data, saved, isOwner, reaction, account = null)
     dislikes: data.dislikes | 0,
     likes: data.likes | 0,
     saved: saved,
-    graph: data.graph ? {
-      image: (data.graph.ogImage !== null && data.graph.ogImage !== undefined) ? data.graph.ogImage : data.graph.image,
-      title: (data.graph.ogTitle !== null && data.graph.ogTitle !== undefined) ? data.graph.ogTitle : data.graph.title,
-      description: (data.graph.ogDescription !== null && data.graph.ogDescription !== undefined) ? data.graph.ogDescription : data.graph.description
-    } : {},
+    graph: data.graph ? data.graph : {},
     type: data.type,
     isOwner: isOwner,
     createdAt: data.createdAt,
