@@ -17,6 +17,7 @@ router.post('/dislike/:post', middlewares.passport.authenticate, middlewares.val
 router.post('/visit/:post', middlewares.validateRequest, middlewares.async(PostController.visit));
 router.post('/publish/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.publishPost));
 router.delete('/publish/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.unPublishPost));
+router.delete('/:post', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.delete));
 
 router.post('/', middlewares.passport.authenticate, middlewares.validateRequest, middlewares.async(PostController.save));
 router.get('/:id', middlewares.passport.checkAuthorization, middlewares.validateRequest, middlewares.async(PostController.one));
