@@ -103,6 +103,32 @@ controller.update = async (req, res, next) => {
   }
 };
 
+controller.delete = async (req, res, next) => {
+  let id = req.params.post;
+  let post = await Post.findById(id);
+
+  if (!post) {
+    return req.respond.notFound();
+  }
+
+  if (post.account.toString() !== req.token._id.toString()) {
+    return req.respond.forbidden();
+  }
+
+  if (!post.deleted) {
+    post.deleted = true;
+
+    await post.save();
+    req.respond.ok();
+
+    if (post.status === 'public') {
+      await deleteObject(post._id);
+    }
+  }
+
+  return req.respond.ok();
+};
+
 controller.save = async (req, res, next) => {
   const {
     title,
@@ -252,6 +278,9 @@ controller.publish = async (post, account) => {
 controller.one = async (req, res, next) => {
   let id = req.params.id;
   let post = await Post.retrieveById(id);
+  if (post.deleted === true) {
+    return req.respond.notFound();
+  }
 
   if (post) {
     if (req.token && req.token._id) {
@@ -664,6 +693,7 @@ controller.me = async (req, res, next) => {
       count = await Post.countDocuments({
         account: req.token._id,
         status: status,
+        deleted: false,
         type: type ? type : 'post'
       });
 
@@ -671,6 +701,7 @@ controller.me = async (req, res, next) => {
         match: {
           account: req.token._id,
           status: status,
+          deleted: false,
           type: type ? type : 'post'
         },
         limit: req.query.limit,
@@ -711,6 +742,7 @@ controller.me = async (req, res, next) => {
       count = await Post.countDocuments({
         account: req.token._id,
         status: 'public',
+        deleted: false,
         type: type ? type : 'post'
       });
 
@@ -718,6 +750,7 @@ controller.me = async (req, res, next) => {
         match: {
           account: req.token._id,
           status: 'public',
+          deleted: false,
           type: type ? type : 'post'
         },
         limit: req.query.limit,
