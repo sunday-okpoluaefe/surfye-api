@@ -555,6 +555,7 @@ controller.create_note_object = (data, saved, isOwner, reaction, account = null)
     dislikes: data.dislikes | 0,
     likes: data.likes | 0,
     saved: saved,
+    status: data.status,
     type: data.type,
     raw: data.raw,
     body: data.body,

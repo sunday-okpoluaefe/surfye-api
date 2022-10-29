@@ -63,6 +63,6 @@ module.exports.CustomPaginate = (items, count, currentPage, perPageItems) => {
     pagingCounter: (parseInt(perPage) * parseInt(page)),
     totalPages,
     hasPrevPage: page > 0,
-    hasNextPage: (totalPages > (page)),
+    hasNextPage: (totalPages > (page + 1)),
   };
 };
