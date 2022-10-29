@@ -51,5 +51,7 @@ module.exports = {
       .required(),
     body: Joi.string()
       .required(),
+    raw: Joi.string()
+      .required(),
   })
 };

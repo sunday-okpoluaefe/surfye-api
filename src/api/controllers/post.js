@@ -274,11 +274,12 @@ controller.publish = async (post, account) => {
 controller.one = async (req, res, next) => {
   let id = req.params.id;
   let post = await Post.retrieveById(id);
-  if (post.deleted === true) {
-    return req.respond.notFound();
-  }
 
   if (post) {
+    if (post.deleted === true) {
+      return req.respond.notFound();
+    }
+
     if (req.token && req.token._id) {
       let data = await controller.transform([post], {
         _id: req.token._id,
