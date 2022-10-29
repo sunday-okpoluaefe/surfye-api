@@ -42,7 +42,7 @@ module.exports.push_note = async (payload) => {
     likes: note.likes || 0,
     dislikes: note.dislikes || 0,
     visits: note.visits || 0,
-    body: note.body
+    //body: note.body
   };
 
   try {
