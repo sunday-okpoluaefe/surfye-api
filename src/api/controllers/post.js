@@ -310,10 +310,24 @@ controller.random = async (req, res, next) => {
     skip: random,
     limit: 10,
     sort: {
-      likes: -1,
-      visits: -1
+      visits: -1,
+      likes: -1
     }
   });
+
+  if (random_posts.length < 1) {
+    random_posts = await Post.retrieve({
+      match: {
+        status: 'public'
+      },
+      skip: 0,
+      limit: 10,
+      sort: {
+        visits: -1,
+        likes: -1
+      }
+    });
+  }
 
   let transformed;
 
