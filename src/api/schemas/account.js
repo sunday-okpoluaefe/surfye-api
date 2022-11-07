@@ -33,5 +33,8 @@ module.exports.AccountSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  country: { type: String },
+  country: {
+    name: { type: String },
+    timezone: { type: String }
+  },
 }, { timestamps: true });

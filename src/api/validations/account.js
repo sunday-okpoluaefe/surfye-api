@@ -7,8 +7,6 @@ module.exports = {
     email: Joi.string()
       .email({ tlds: { allow: false } })
       .required(),
-    country: Joi.string()
-      .required(),
     image: Joi.string()
       .required()
   }),

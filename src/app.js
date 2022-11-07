@@ -67,6 +67,7 @@ app.set('trust proxy', true);
 
 app.use(express.json()); // attach the express json middleware
 app.use(config.get('api.basePath'), router); // attach API router
+app.set('trust proxy', true);
 
 app.use(middlewares.error.catch); // attach error middleware to catch internal server errors
 app.use(middlewares.error.notFound); // attach error middleware to catch 404 errors

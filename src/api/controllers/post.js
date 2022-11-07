@@ -783,7 +783,29 @@ controller.me = async (req, res, next) => {
   return req.respond.ok(CustomPaginate(data ? data : [], count || 0, req.query.skip, req.query.limit));
 };
 
-controller.all = async (req, res, next) => {
+controller.graph = async (req, res, next) => {
+  let url = req.query.url ? req.query.url : '';
+
+  let graph = await get_graph(url);
+  if (graph) {
+    return req.respond.custom({
+      success: 1,
+      link: url,
+      meta: {
+        title: graph.title,
+        description: graph.description,
+        image: {
+          url: graph.image.url
+        }
+      }
+    });
+  }
+
+  return req.respond.custom({
+    success: 0,
+    link: url,
+    meta: {}
+  });
 
 };
 

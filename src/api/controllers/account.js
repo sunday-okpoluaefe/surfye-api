@@ -3,6 +3,8 @@ const {
   Category
 } = require('../providers/models');
 const { SetErrorData } = require('../helpers/set-error-data');
+const geoip = require('geoip-lite');
+const iplocate = require('node-iplocate');
 
 const controller = {};
 
@@ -10,13 +12,26 @@ controller.auth = async (req, res, next) => {
   const {
     email,
     image,
-    name,
-    country
+    name
   } = req.body;
 
   let account = await Account.findOne({
     'email': email
   });
+
+  let country = null;
+
+  let lookup = geoip.lookup(req.ip);
+  if (lookup) {
+    const regionNames = new Intl.DisplayNames(
+      ['en'], { type: 'region' }
+    );
+
+    country = {
+      name: regionNames.of(lookup.country),
+      timezone: lookup.timezone
+    };
+  }
 
   if (account) {
     return req.respond.ok({
