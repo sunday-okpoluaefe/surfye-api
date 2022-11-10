@@ -280,6 +280,18 @@ controller.one = async (req, res, next) => {
       return req.respond.notFound();
     }
 
+    if (post.status === 'private') {
+      if (req.token && req.token._id) {
+
+        if (post.account.toString() !== req.token._id.toString()) {
+          return req.respond.unauthorized();
+        }
+
+      } else {
+        return req.respond.unauthorized();
+      }
+    }
+
     if (req.token && req.token._id) {
       let data = await controller.transform([post], {
         _id: req.token._id,
