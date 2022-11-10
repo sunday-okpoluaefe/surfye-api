@@ -283,7 +283,7 @@ controller.one = async (req, res, next) => {
     if (post.status === 'private') {
       if (req.token && req.token._id) {
 
-        if (post.account.toString() !== req.token._id.toString()) {
+        if (post.account._id.toString() !== req.token._id.toString()) {
           return req.respond.unauthorized();
         }
 
