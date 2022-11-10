@@ -26,7 +26,9 @@ AccountSchema.methods.setAuthToken = function (params) {
     _id: this._id,
     email: this.email,
     name: this.name,
-    image: this.image
+    image: this.image,
+    country: this.country,
+    pk: this.privateKey
   }, params);
 
   return encryptor.encrypt(token);

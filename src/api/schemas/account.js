@@ -37,4 +37,5 @@ module.exports.AccountSchema = new mongoose.Schema({
     name: { type: String },
     timezone: { type: String }
   },
+  privateKey: { type: String }
 }, { timestamps: true });
