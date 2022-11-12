@@ -1,16 +1,32 @@
-const CryptoJS = require('crypto-js');
+const enc = require('crypto-js');
+const key = process.env.APP_ENC_KEY;
 
 const api = {};
 
-api.encrypt = (data, key) => {
-  return CryptoJS.AES.encrypt(data, key).toString();
+api.encrypt = (data) => {
+  return enc.AES.encrypt(data, key)
+    .toString();
 };
 
-api.decrypt = (data, key) => {
-  try{
-    const bytes = CryptoJS.AES.decrypt(data, key);
-    return bytes.toString(CryptoJS.enc.Utf8);
-  }catch (e) {
+api.encryptObject = (data) => {
+  return enc.AES.encrypt(JSON.stringify(data), key)
+    .toString();
+};
+
+api.decrypt = (data) => {
+  try {
+    const bytes = enc.AES.decrypt(data, key);
+    return bytes.toString(enc.enc.Utf8);
+  } catch (e) {
+    return null;
+  }
+};
+
+api.decryptObject = (data) => {
+  try {
+    const bytes = enc.AES.decrypt(data, key);
+    return JSON.parse(bytes.toString(enc.enc.Utf8));
+  } catch (e) {
     return null;
   }
 };

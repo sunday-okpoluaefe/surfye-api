@@ -1,12 +1,9 @@
+const { Encryptor } = require( '../helpers/encryptor');
 const auth = require('../services/auth');
 const {
   Account,
   Admin
 } = require('../providers/models');
-
-const key = process.env.APP_ENC_KEY;
-
-const encryptor = require('simple-encryptor')(key);
 
 const passport = {};
 
@@ -18,7 +15,7 @@ passport.authenticate = async (req, res, next) => {
   if (!req.headers.authorization) return req.respond.unauthorized();
 
   const { authorization } = req.headers;
-  const decrypted = encryptor.decrypt(authorization.substring(7));
+  const decrypted = Encryptor.decrypt(authorization.substring(7));
 
   const token = passport.isAuthenticated(decrypted);
 
@@ -40,7 +37,7 @@ passport.checkAuthorization = async (req, res, next) => {
   }
 
   const { authorization } = req.headers;
-  const decrypted = encryptor.decrypt(authorization.substring(7));
+  const decrypted = Encryptor.decrypt(authorization.substring(7));
 
   const token = passport.isAuthenticated(decrypted);
 

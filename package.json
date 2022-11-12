@@ -41,7 +41,6 @@
     "open-graph-scraper": "^4.11.1",
     "rate-limiter-flexible": "^2.2.4",
     "redoc-express": "^1.0.0",
-    "simple-encryptor": "^4.0.0",
     "socket.io": "^2.3.0",
     "swagger-ui": "^3.52.3",
     "swagger-ui-express": "^4.1.6",

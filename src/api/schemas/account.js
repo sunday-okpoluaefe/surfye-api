@@ -33,6 +33,7 @@ module.exports.AccountSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  loginAt: { type: Date },
   country: {
     name: { type: String },
     timezone: { type: String }
