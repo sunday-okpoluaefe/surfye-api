@@ -36,6 +36,7 @@ controller.auth = async (req, res, next) => {
   if (account) {
     req.respond.ok({
       authorization: account.setAuthToken({ persist: true }),
+      createdAt: Date.now(),
       user: {
         _id: account._id,
         name: name,
@@ -62,6 +63,7 @@ controller.auth = async (req, res, next) => {
 
   return req.respond.ok({
     authorization: account.setAuthToken({ persist: true }),
+    createdAt: Date.now(),
     user: {
       _id: account._id,
       name: name,
