@@ -36,7 +36,7 @@ controller.auth = async (req, res, next) => {
   if (account) {
     req.respond.ok({
       authorization: account.setAuthToken({ persist: true }),
-      createdAt: Date.now(),
+      createdAt: new Date(Date.now()).toISOString(),
       user: {
         _id: account._id,
         name: name,
@@ -46,7 +46,7 @@ controller.auth = async (req, res, next) => {
       },
     });
 
-    account.loginAt = Date.now();
+    account.loginAt = new Date(Date.now()).toISOString();
     await account.save();
     return;
   }
@@ -56,14 +56,14 @@ controller.auth = async (req, res, next) => {
     country: country,
     image: image,
     name: name,
-    loginAt: Date.now()
+    loginAt: new Date(Date.now()).toISOString(),
   });
 
   await account.save();
 
   return req.respond.ok({
     authorization: account.setAuthToken({ persist: true }),
-    createdAt: Date.now(),
+    createdAt: new Date(Date.now()).toISOString(),
     user: {
       _id: account._id,
       name: name,
