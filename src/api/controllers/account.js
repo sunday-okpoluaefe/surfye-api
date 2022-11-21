@@ -112,13 +112,28 @@ controller.interests = async (req, res, next) => {
 
 controller.transform_summary = (data) => {
   let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return data.map(sum => {
+  let agg = data.map(sum => {
       return {
           year: sum._id.year,
           month: months[sum._id.month - 1],
           visits: sum.total_visits_month
       }
   });
+
+  let agg_data = []
+  for (let index = 0; index < 12; index++) {
+    let match = agg.find(d => d.month === months[index]);
+      if(!match) {
+          agg_data.push({
+            year: new Date().getFullYear(),
+            month: months[index],
+            visits: 0
+          })
+      }
+      else agg_data.push(match)
+  }
+
+  return agg_data;
 }
 
 controller.summary = async(req, res, next) => {
