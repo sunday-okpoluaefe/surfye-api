@@ -5,6 +5,7 @@ const {
 const { SetErrorData } = require('../helpers/set-error-data');
 const geoip = require('geoip-lite');
 const iplocate = require('node-iplocate');
+const { Post } = require('../models/post');
 
 const controller = {};
 
@@ -108,5 +109,29 @@ controller.interests = async (req, res, next) => {
   return req.respond.ok();
 
 };
+
+controller.transform_summary = (data) => {
+  let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return data.map(sum => {
+      return {
+          year: sum._id.year,
+          month: months[sum._id.month - 1],
+          visits: sum.total_visits_month
+      }
+  });
+}
+
+controller.summary = async(req, res, next) => {
+  let sum_data = await Post.summary(req.token._id);
+  let summary = await Post.total_type_aggregate(req.token._id);
+  return req.respond.ok({
+    sum_aggregate: controller.transform_summary(sum_data),
+    summary: summary.map(d => { return { 
+      type: d._id.type, 
+      visits: d.total_visits,  
+      count: d.count
+    }})
+  })
+}
 
 module.exports.AccountController = controller;
