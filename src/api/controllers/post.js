@@ -115,7 +115,7 @@ controller.delete = async (req, res, next) => {
     return req.respond.forbidden();
   }
 
-  if (!post.deleted) {
+  if (post.delete === false) {
     post.deleted = true;
 
     await post.save();
@@ -607,6 +607,9 @@ controller.transformFavourite = async (posts, account) => {
   });
 
   let data = posts.map(fav => {
+    if(!fav.post) {
+      return null;
+    }
     let reaction = reactions.find(r => r.account.toString() === account._id.toString() && r.post.toString() === fav.post._id.toString());
     let isSaved = saved.find(s => s.post.toString() === fav.post._id.toString());
 
